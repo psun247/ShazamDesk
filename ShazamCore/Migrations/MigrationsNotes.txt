@@ -1,0 +1,5 @@
+﻿
+2015-11-26
+
+This folder contains old migrations for MySQL, but from now on, MS SQL Server will be used.
+But the MySQL files remain as FYI.

@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Version>1.0</Version>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\about.png" />
+    <None Remove="Assets\AboutTabContent.txt" />
+    <None Remove="Assets\azure.png" />
+    <None Remove="Assets\database.png" />
+    <None Remove="Assets\shazam.png" />
+    <None Remove="WpfShazam.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\AboutTabContent.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />    
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1587.40" />
+    <PackageReference Include="ModernWpfUI" Version="0.9.6" />    
+    <PackageReference Include="RestoreWindowPlace" Version="2.1.0" />    
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ShazamCore\ShazamCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\about.png" />
+    <Resource Include="Assets\azure.png" />
+    <Resource Include="Assets\database.png" />
+    <Resource Include="Assets\shazam.png" />
+    <Resource Include="Assets\WpfShazam.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Update="App.xaml">
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </ApplicationDefinition>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="AzureADClientSecret\appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

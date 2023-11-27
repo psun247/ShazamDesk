@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/ShazamCore/bin/Debug/net7.0
+/ShazamCore/obj
+/WpfShazam/bin/Debug/net7.0-windows
+/WpfShazam/obj
+/ShazamCore/bin/Release/net7.0
+/WpfShazam/bin/Release/net7.0-windows
