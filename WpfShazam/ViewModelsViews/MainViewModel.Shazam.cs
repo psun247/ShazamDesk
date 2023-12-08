@@ -163,8 +163,7 @@ namespace WpfShazam.ViewModelsViews
                 }
             }
             catch (HttpRequestException ex)
-            {
-                SongInfoListFromAzure = new ObservableCollection<SongInfo>();
+            {                
                 await HandleHttpRequestExceptionAsync(ex);
             }
             catch (Exception ex)

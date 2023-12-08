@@ -16,7 +16,7 @@ namespace ShazamCore.Services
 
         private AzureService(AzureADInfo azureADInfo)
         {
-            // Make https://localhost:7026/songreponoauth
+            // Make https://localhost:7024/songreponoauth
             _webApiClientNoAuth = new WebApiClient(azureADInfo.WebApiEndpoint + "noauth");
             _webApiClientAuth = new WebApiClient(azureADInfo.WebApiEndpoint, azureADInfo.AccessToken);
         }
@@ -28,7 +28,7 @@ namespace ShazamCore.Services
                 AzureADInfo azureADInfo = await AuthConfig.GetAzureADInfoAsync();
 #if DEBUG               
                 // Overwrite WebApiEndpoint in appsettings.json in Debug build
-                //azureADInfo.WebApiEndpoint = "https://localhost:7026/songrepo";
+                //azureADInfo.WebApiEndpoint = "https://localhost:7024/songrepo";
                 //System.Diagnostics.Debug.WriteLine($"****Overwrite WebApiEndpoint in Debug build: {azureADInfo.WebApiEndpoint}");
 #endif
                 return new AzureService(azureADInfo);
@@ -64,11 +64,12 @@ namespace ShazamCore.Services
 
             return response?.SongInfoDtoList.Select(x => new SongInfo
             {
+                Id = x.SongInfoId,
                 Artist = x.Artist,
                 Description = x.Description,
                 CoverUrl = x.CoverUrl,
                 Lyrics = x.Lyrics,
-                SongUrl = x.SongUrl,                                
+                SongUrl = x.SongUrl,
             }).ToList() ?? new List<SongInfo>();
         }
 
@@ -91,11 +92,11 @@ namespace ShazamCore.Services
             return response?.Error ?? "Error: didn't get a response from Web API";
         }
 
-        public async Task<string> DeleteSongInfoAsync(string songUrl, bool viaAuth)
+        public async Task<string> DeleteSongInfoAsync(int songInfoId, bool viaAuth)
         {
             WebApiClient webApiClient = GetWebApiClient(viaAuth)!;
             DeleteSongInfoResponse? response =
-                await webApiClient.DeleteSongInfoAsync(new DeleteSongInfoRequest { SongUrl = songUrl });
+                await webApiClient.DeleteSongInfoAsync(new DeleteSongInfoRequest { SongInfoId = songInfoId });
 
             return response?.Error ?? "Error: didn't get a response from Web API";
         }

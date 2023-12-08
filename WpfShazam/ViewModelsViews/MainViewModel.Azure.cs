@@ -98,12 +98,7 @@ namespace WpfShazam.ViewModelsViews
 
         [RelayCommand]
         private async Task DeleteAzure()
-        {
-            if (string.IsNullOrWhiteSpace(SelectedSongInfoFromAzure?.CoverUrl))
-            {
-                return;
-            }
-
+        {            
             if (MessageBox.Show("Are you sure you want to delete the selected song info from Azure SQL DB via Web API?", "Confirmation",
                            MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
             {
@@ -116,7 +111,7 @@ namespace WpfShazam.ViewModelsViews
 
                 StatusMessage = $"Deleting song info from Azure SQL DB ({WebApiAuthInfo})...please wait";
 
-                string error = await _azureService!.DeleteSongInfoAsync(SelectedSongInfoFromAzure.SongUrl, IsWebApiViaAuth);
+                string error = await _azureService!.DeleteSongInfoAsync(SelectedSongInfoFromAzure!.Id, IsWebApiViaAuth);
                 if (error.IsBlank())
                 {
                     SongInfoListFromAzure = new ObservableCollection<SongInfo>(
@@ -130,8 +125,7 @@ namespace WpfShazam.ViewModelsViews
                 }
             }
             catch (HttpRequestException ex)
-            {
-                SongInfoListFromAzure = new ObservableCollection<SongInfo>();
+            {                
                 await HandleHttpRequestExceptionAsync(ex);
             }
             catch (Exception ex)

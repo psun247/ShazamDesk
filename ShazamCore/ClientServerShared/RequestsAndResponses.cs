@@ -22,7 +22,7 @@ namespace ClientServerShared
 
     public class DeleteSongInfoRequest
     {
-        public string SongUrl { get; set; } = string.Empty;
+        public int SongInfoId { get; set; }
     }
 
     public class DeleteSongInfoResponse

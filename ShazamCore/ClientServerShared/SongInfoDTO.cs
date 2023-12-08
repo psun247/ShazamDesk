@@ -2,7 +2,9 @@
 {
     // Similar to SongInfo class
     public class SongInfoDTO
-    {
+    {        
+        // DB Id to be used for Delete from client
+        public int SongInfoId { get; set; }
         public string Artist { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string? CoverUrl { get; set; }
