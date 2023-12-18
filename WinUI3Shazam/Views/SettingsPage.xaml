@@ -1,0 +1,78 @@
+﻿<Page
+    x:Class="WinUI3Shazam.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"        
+    mc:Ignorable="d"
+    NavigationCacheMode="Disabled">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Settings" FontSize="28" FontWeight="SemiBold" Margin="30,15,0,5"  />
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="30,15,0,5" >
+                <TextBlock Text="Selected tab name: " FontSize="22" FontWeight="SemiBold" />
+                <TextBlock Text="{x:Bind ViewModel.AppSettings.SelectedTabName}" FontSize="18" Margin="10,5,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="30,15,0,5" >
+                <TextBlock Text="Selected device name: " FontSize="22" FontWeight="SemiBold" />
+                <TextBlock Text="{x:Bind ViewModel.AppSettings.SelectedDeviceName}" FontSize="18" Margin="10,5,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="30,15,0,5" >
+                <TextBlock Text="Selected device ID: " FontSize="22" FontWeight="SemiBold" />
+                <TextBlock Text="{x:Bind ViewModel.AppSettings.SelectedDeviceID}" FontSize="18" Margin="10,5,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="30,15,0,5" >
+                <TextBlock Text="Selected song url on Shazam tab: " FontSize="22" FontWeight="SemiBold" />
+                <TextBlock FontSize="18" Margin="5,5,0,0">                    
+                    <!--Need both NavigateUri and Run's Text-->
+                    <Hyperlink NavigateUri="{x:Bind ViewModel.AppSettings.SelectedShazamTabSongUrl}" >
+                        <Run Text="{x:Bind ViewModel.AppSettings.SelectedShazamTabSongUrl}" />
+                    </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="30,15,0,5" >
+                <TextBlock Text="Selected song from list on Azure tab: " FontSize="22" FontWeight="SemiBold" />
+                <TextBlock Text="{x:Bind ViewModel.AppSettings.SelectedAzureTabSongSummary}" FontSize="18" Margin="5,5,0,0"/>
+                <TextBlock FontSize="18" Margin="5,5,0,0">                    
+                    <!--Need both NavigateUri and Run's Text-->
+                    <Hyperlink NavigateUri="{x:Bind ViewModel.AppSettings.SelectedAzureTabSongUrl}" >
+                        <Run Text="(" />
+                        <Run Text="{x:Bind ViewModel.AppSettings.SelectedAzureTabSongUrl}" />
+                        <Run Text=")" />
+                    </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Grid.Row="5" Orientation="Horizontal">
+                <CheckBox Content="Use Web API with JWT token" IsChecked="{x:Bind ViewModel.IsWebApiViaAuth, Mode=TwoWay}"
+                          FontSize="16" FontWeight="SemiBold" Margin="30,15,0,0" />
+                <TextBlock FontSize="18" Margin="5,20,0,0">     
+                    <Hyperlink NavigateUri="{x:Bind ViewModel.WebApiUrl, Mode=OneWay}">
+                        <Run Text="(" />
+                        <Run Text="{x:Bind ViewModel.WebApiUrl, Mode=OneWay}" />
+                        <Run Text=")" />
+                    </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+            <TextBox  Grid.Row="6" Text="{x:Bind ViewModel.SettingsChangedNote, Mode=OneTime}"
+                      IsReadOnly="True" TextWrapping="Wrap" FontSize="20" Background="#EDEDED" Margin="30,20,30,0"/>
+        </Grid>
+    </Grid>
+</Page>

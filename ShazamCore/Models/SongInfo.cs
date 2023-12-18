@@ -27,8 +27,10 @@ namespace ShazamCore.Models
         [Required(ErrorMessage = "SongUrl is a YouTube url and required")]
         public string SongUrl { get; set; } = string.Empty;
 
-        public DateTime? ModifiedDateTime { get; set; }        
+        public DateTime? ModifiedDateTime { get; set; }
 
+        // In WinUI XAML, can't use '.' to bind, hence Summary
+        public string Summary => ToString();
         public override string ToString() => Artist.IsNotBlank() ? $"{Artist} - {Description}" : Description;
     }
 }

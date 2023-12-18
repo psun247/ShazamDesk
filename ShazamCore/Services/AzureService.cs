@@ -4,34 +4,67 @@ using ShazamCore.Models;
 
 namespace ShazamCore.Services
 {
-    public class AzureService
+    // Note: IAzureService is used in WinUI3 only
+    public interface IAzureService
+    {
+        Task CreateWebApiClientsAsync();
+        string? WebApiUrlNoAuth { get; }
+        string? WebApiUrlAuth { get; }
+        Task UseNewAccessTokenAsync();
+        Task<List<SongInfo>> GetAllSongInfoListAsync(bool viaAuth);
+        Task<string> AddSongInfoAsync(SongInfo songInfo, bool viaAuth);
+        Task<string> DeleteSongInfoAsync(int songInfoId, bool viaAuth);
+    }
+
+    public class AzureService : IAzureService
     {
         private WebApiClient? _webApiClientNoAuth;
         private WebApiClient? _webApiClientAuth;
 
-        private AzureService()
+        public AzureService()
         {
-            // Failed to initialize _webApiClient           
+            // This ctor is used when CreateAsync() can't be used, so need to set up _webApiClient[No]Auth
+            // with CreateWebApiClientsAsync()
         }
 
-        private AzureService(AzureADInfo azureADInfo)
+        private AzureService(AzureADInfo? azureADInfo)
         {
-            // Make https://localhost:7024/songreponoauth
-            _webApiClientNoAuth = new WebApiClient(azureADInfo.WebApiEndpoint + "noauth");
-            _webApiClientAuth = new WebApiClient(azureADInfo.WebApiEndpoint, azureADInfo.AccessToken);
+            CreateWebApiClients(azureADInfo);
+        }
+
+        public async Task CreateWebApiClientsAsync()
+        {
+            AzureADInfo azureADInfo = await AuthConfig.GetAzureADInfoAsync();
+            CreateWebApiClients(azureADInfo);
+        }
+
+        private void CreateWebApiClients(AzureADInfo? azureADInfo)
+        {
+            if (azureADInfo != null)
+            {
+#if DEBUG                
+                //azureADInfo.WebApiEndpoint = "https://localhost:7024/songrepo";
+                //System.Diagnostics.Debug.WriteLine($"****Overwrite WebApiEndpoint in Debug build: {azureADInfo.WebApiEndpoint}");
+#endif
+
+                // Make no-auth as https://localhost:7024/songreponoauth
+                _webApiClientNoAuth = new WebApiClient(azureADInfo.WebApiEndpoint + "noauth");
+                _webApiClientAuth = new WebApiClient(azureADInfo.WebApiEndpoint, azureADInfo.AccessToken);
+            }
         }
 
         public static async Task<AzureService> CreateAsync()
         {
+            AzureADInfo? azureADInfo = await GetAzureADInfoAsync();
+            return new AzureService(azureADInfo);
+        }
+
+        private static async Task<AzureADInfo?> GetAzureADInfoAsync()
+        {
+            AzureADInfo? azureADInfo = null;
             try
             {
-                AzureADInfo azureADInfo = await AuthConfig.GetAzureADInfoAsync();
-#if DEBUG               
-                // Overwrite WebApiEndpoint in appsettings.json in Debug build
-                //azureADInfo.WebApiEndpoint = "https://localhost:7024/songrepo";
-                //System.Diagnostics.Debug.WriteLine($"****Overwrite WebApiEndpoint in Debug build: {azureADInfo.WebApiEndpoint}");
-#endif
-                return new AzureService(azureADInfo);
+                azureADInfo = await AuthConfig.GetAzureADInfoAsync();
             }
             catch (Microsoft.Identity.Client.MsalClientException)
             {
@@ -45,7 +78,7 @@ namespace ShazamCore.Services
             {
                 string todoLogThisMessage = ex.Message;
             }
-            return new AzureService();
+            return azureADInfo;
         }
 
         public string? WebApiUrlNoAuth => _webApiClientNoAuth?.AzureServiceWebApiEndpoint;
@@ -56,11 +89,12 @@ namespace ShazamCore.Services
             AzureADInfo azureADInfo = await AuthConfig.GetAzureADInfoAsync();
             _webApiClientAuth?.ReplaceAccessToken(azureADInfo.AccessToken);
         }
-
+        
         public async Task<List<SongInfo>> GetAllSongInfoListAsync(bool viaAuth)
         {
             WebApiClient webApiClient = GetWebApiClient(viaAuth)!;
-            GetAllSongInfoListResponse? response = await webApiClient.GetAllSongInfoListAsync(new GetAllSongInfoListRequest());
+            GetAllSongInfoListResponse? response = await webApiClient.GetAllSongInfoListAsync(
+                                                                        new GetAllSongInfoListRequest());
 
             return response?.SongInfoDtoList.Select(x => new SongInfo
             {
@@ -69,7 +103,7 @@ namespace ShazamCore.Services
                 Description = x.Description,
                 CoverUrl = x.CoverUrl,
                 Lyrics = x.Lyrics,
-                SongUrl = x.SongUrl,
+                SongUrl = x.SongUrl,                
             }).ToList() ?? new List<SongInfo>();
         }
 

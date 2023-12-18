@@ -6,7 +6,7 @@ namespace ShazamCore.Helpers
 {
     public static class JsonHelper
     {
-        public static string SerializeObjectAsJsonString(object objectToSerialize)
+        public static string SerializeObjectAsJsonString(object? objectToSerialize)
         {
             string jsonString = JsonSerializer.Serialize(objectToSerialize,
                         options: new JsonSerializerOptions

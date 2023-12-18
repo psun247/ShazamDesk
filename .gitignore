@@ -9,3 +9,6 @@
 /WpfShazam/obj
 /ShazamCore/bin/Release/net7.0
 /WpfShazam/bin/Release/net7.0-windows
+/WinUI3Shazam/bin
+/WinUI3Shazam/obj
+/ShazamCore/.vs/ShazamCore

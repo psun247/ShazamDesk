@@ -3,7 +3,30 @@
 namespace ShazamCore.Helpers
 {
     public static class GeneralHelper
-    {         
+    {
+        public static async Task<string?> OpenWithBrowserAsync(string videoUri)
+        {
+            string? error = null;
+
+            try
+            {
+                if (videoUri.IsNotBlank())
+                {
+                    await GeneralHelper.ExecuteOpenUrlCommandAsync(videoUri);
+                }
+                else
+                {
+                    error = "YouTube video or search query not found";
+                }
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+            }
+
+            return error;
+        }
+
         public static async Task ExecuteOpenUrlCommandAsync(string url, bool lanuchMSEdge = false)
         {
             if (!string.IsNullOrEmpty((string)url))
