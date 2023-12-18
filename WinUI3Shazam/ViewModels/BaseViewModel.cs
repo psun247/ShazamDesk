@@ -85,7 +85,7 @@ public partial class BaseViewModel : ObservableRecipient
         return (result == ContentDialogResult.Primary);
     }
 
-    // In app init, require AppNotificationManager.Default.Register();
+    // In app init, require AppNotificationManager.Default.Register(), but it may fail on Windows 10 (see HandleInternalAsync())
     public static void SendNotificationToast(string message)
     {
         try

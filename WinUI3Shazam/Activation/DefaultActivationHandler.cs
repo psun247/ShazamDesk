@@ -25,7 +25,8 @@ public class DefaultActivationHandler : ActivationHandler<LaunchActivatedEventAr
     // Note: app's init code in here
     protected async override Task HandleInternalAsync(LaunchActivatedEventArgs args)
     {
-        AppNotificationManager.Default.Register();
+        // Note: this can crash on Windows 10, and without this call, toast message can work in Debug build (see SendNotificationToast())
+        //AppNotificationManager.Default.Register();
 
         // Could do this before in the calling chain, but NavigateTo() is the first one needing AppSettings
         var localsettingsService = App.GetService<ILocalSettingsService>();
