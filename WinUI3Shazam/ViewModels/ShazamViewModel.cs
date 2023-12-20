@@ -181,7 +181,7 @@ public partial class ShazamViewModel : BaseViewModel
         try
         {            
             // Note: Mouse.OverrideCursor = Cursors.Wait not available in WinUI, so use status message
-            StatusMessage = "Adding song to Azure SQL DB...please wait";
+            StatusMessage = "Adding song to Azure SQL DB via Web API...please wait";
 
             var songInfo = new SongInfo
             {
@@ -196,7 +196,7 @@ public partial class ShazamViewModel : BaseViewModel
             if (error.IsBlank())
             {
                 _IsAzureTabInSync = false;
-                StatusMessage = "Song added to Azure SQL DB";
+                StatusMessage = "Song added to Azure SQL DB via Web API";
             }
             else
             {

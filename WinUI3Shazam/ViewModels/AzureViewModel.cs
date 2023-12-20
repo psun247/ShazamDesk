@@ -57,12 +57,12 @@ public partial class AzureViewModel : BaseViewModel
     {
         try
         {
-            StatusMessage = "Loading song list from Azure SQL DB...please wait";
+            StatusMessage = "Loading song list from Azure SQL DB via Web API...please wait";
 
             var list = await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
             SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
 
-            StatusMessage = list.Count == 0 ? "No song found at Azure SQL DB" : "Song list loaded from Azure SQL DB";
+            StatusMessage = list.Count == 0 ? "No song found at Azure SQL DB via Web API" : "Song list loaded from Azure SQL DB via Web API";
         }
         catch (HttpRequestException ex)
         {
@@ -90,7 +90,7 @@ public partial class AzureViewModel : BaseViewModel
         try
         {
             // Note: Mouse.OverrideCursor = Cursors.Wait not available in WinUI, so use status message            
-            StatusMessage = "Deleting song from Azure SQL DB...please wait";
+            StatusMessage = "Deleting song from Azure SQL DB via Web API...please wait";
 
             string error = await _azureService.DeleteSongInfoAsync(SelectedSongInfoFromAzure!.Id, AppSettings.IsWebApiViaAuth);
             if (error.IsBlank())
@@ -101,7 +101,7 @@ public partial class AzureViewModel : BaseViewModel
                 SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
                 UpdateAzureTabButtons();
 
-                StatusMessage = "Song deleted from Azure SQL DB";
+                StatusMessage = "Song deleted from Azure SQL DB via Web API";
             }
             else
             {

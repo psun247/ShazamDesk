@@ -15,6 +15,8 @@
     <None Remove="Assets\azure.png" />
     <None Remove="Assets\database.png" />
     <None Remove="Assets\shazam.png" />
+    <None Remove="Assets\winui3.png" />
+    <None Remove="Assets\winui3screens.png" />
     <None Remove="WpfShazam.ico" />
   </ItemGroup>
 
@@ -38,6 +40,8 @@
     <Resource Include="Assets\azure.png" />
     <Resource Include="Assets\database.png" />
     <Resource Include="Assets\shazam.png" />
+    <Resource Include="Assets\winui3.png" />
+    <Resource Include="Assets\winui3screens.png" />
     <Resource Include="Assets\WpfShazam.ico" />
   </ItemGroup>
 

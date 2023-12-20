@@ -66,6 +66,15 @@
                         </ui:TabItemHelper.Icon>
                         <local:SqlServerUserControl DataContext="{Binding .}" />
                     </TabItem>
+                    <TabItem x:Name="WinUI3TabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
+                        <TabItem.Header>
+                            <TextBlock Text="WinUI 3" Margin="6,2" />
+                        </TabItem.Header>
+                        <ui:TabItemHelper.Icon>
+                            <ui:BitmapIcon UriSource="/Assets/winui3.png" ShowAsMonochrome="False" />
+                        </ui:TabItemHelper.Icon>
+                        <local:WinUI3UserControl DataContext="{Binding .}" />
+                    </TabItem>
                     <TabItem x:Name="AboutTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
                         <TabItem.Header>
                             <TextBlock Text="About" Margin="6,2" />

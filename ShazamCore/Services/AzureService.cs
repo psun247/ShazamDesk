@@ -43,7 +43,7 @@ namespace ShazamCore.Services
             if (azureADInfo != null)
             {
 #if DEBUG                
-                //azureADInfo.WebApiEndpoint = "https://localhost:7024/songrepo";
+                //azureADInfo.WebApiEndpoint = "https://localhost:7026/songrepo";
                 //System.Diagnostics.Debug.WriteLine($"****Overwrite WebApiEndpoint in Debug build: {azureADInfo.WebApiEndpoint}");
 #endif
 
