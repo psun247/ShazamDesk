@@ -19,14 +19,13 @@ public partial class BaseViewModel : ObservableRecipient
 
     public BaseViewModel(ILocalSettingsService localsettingsService)
     {
-        _localsettingsService = localsettingsService;
-        SongInfoViewModel = new SongInfoViewModel(this);
+        _localsettingsService = localsettingsService;        
     }
 
     protected ILocalSettingsService _localsettingsService;
     public Models.AppSettings AppSettings => _localsettingsService.AppSettings;
 
-    public SongInfoViewModel SongInfoViewModel { get; }
+    public SongInfoViewModel SongInfoViewModel { get; } = new SongInfoViewModel();
     [ObservableProperty]
     string _statusMessage = string.Empty;
     [ObservableProperty]

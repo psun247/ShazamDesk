@@ -1,14 +1,22 @@
-﻿using System.Collections.ObjectModel;
-using Microsoft.UI.Xaml.Controls;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Input;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.Web.WebView2.Wpf;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ClientServerShared;
 using ShazamCore.Models;
-using ShazamCore.Services;
 using ShazamCore.Helpers;
-using WinUI3Shazam.Contracts.Services;
+using ShazamCore.Services;
+using WpfShazam.Main;
+using WpfShazam.Settings;
 
-namespace WinUI3Shazam.ViewModels;
+namespace WpfShazam.Azure;
 
 public partial class AzureViewModel : BaseViewModel
 {
@@ -26,23 +34,38 @@ public partial class AzureViewModel : BaseViewModel
     [ObservableProperty]
     ObservableCollection<SongInfo> _songInfoListFromAzure = new ObservableCollection<SongInfo>();
     [ObservableProperty]
-    SongInfo? _selectedSongInfoFromAzure;
-    // Set from AzurePage
-    public WebView2 AzureWebView2Control { get; set; } = new WebView2();
+    SongInfo? _selectedSongInfoFromAzure;    
+    public WebView2 AzureWebView2Control { get; private set; } = new WebView2();
     [ObservableProperty]
     bool _isDeleteAzureEnabled;
 
-    public async void OnAzureTabActivated()
+    public void Initialize()
+    {        
+        AzureWebView2Control = new WebView2
+        {
+            Name = "AzureWebView2",
+            Source = Constants.YouTubeHomeUri,
+        };
+        AzureWebView2Control.SourceChanged += (s, e) =>
+        {            
+            CurrentVideoUrl = AzureWebView2Control.Source.AbsoluteUri;
+        };
+        OnPropertyChanged(nameof(AzureWebView2Control));
+        
+        SongInfoViewModel.SongInfoPanelVisibility = AppSettings.AzureTab.IsSongInfoPanelVisible ?
+                                                       Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public async Task OnAzureTabActivated()
     {
-        AppSettings.SelectedTabName = Models.AppSettings.AzureTabName;
-        StatusMessage = "To listen to a song to identify, go back to Shazam tab";
+        AppSettings.SelectedTabName = AppSettings.AzureTabName;        
 
         if (!_IsAzureTabInSync)
         {
             await LoadSongInfoListOnAzureTabAsync();
 
             // Auto-select SongInfoListFromAzure
-            var songInfo = SongInfoListFromAzure.FirstOrDefault(x => x.SongUrl == AppSettings.SelectedAzureTabSongUrl);
+            var songInfo = SongInfoListFromAzure.FirstOrDefault(x => x.SongUrl == AppSettings.AzureTab.SelectedSongUrl);
             if (songInfo != null && songInfo != SelectedSongInfoFromAzure)
             {
                 SelectedSongInfoFromAzure = songInfo;
@@ -50,19 +73,22 @@ public partial class AzureViewModel : BaseViewModel
 
             _IsAzureTabInSync = true;
         }
-        UpdateAzureTabButtons();
+        UpdateAzureTabButtons();        
     }
 
     private async Task LoadSongInfoListOnAzureTabAsync()
     {
         try
         {
-            StatusMessage = "Loading song list from Azure SQL DB via Web API...please wait";
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            StatusMessage = $"Loading song list from Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})...please wait";
 
             var list = await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
             SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
 
-            StatusMessage = list.Count == 0 ? "No song found at Azure SQL DB via Web API" : "Song list loaded from Azure SQL DB via Web API";
+            StatusMessage = list.Count == 0 ? $"No song found at Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})" : 
+                                                $"Song list loaded from Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})";
         }
         catch (HttpRequestException ex)
         {
@@ -74,23 +100,26 @@ public partial class AzureViewModel : BaseViewModel
             // Note: leaving SongInfoListFromAzure alone on error seems reasonable (say, server unavailable for a while)            
             ErrorStatusMessage = ex.Message;
         }
+        finally
+        {
+            Mouse.OverrideCursor = null;
+        }
     }
 
     [RelayCommand]
     private async Task DeleteAzure()
     {
-        bool confirmed = await ConfirmationDialogAsync(AzureWebView2Control,
-                    $"Are you sure you want to delete '{SelectedSongInfoFromAzure}' from Azure SQL DB via Web API?",
-                    "Yes", "No", "Cancel");
-        if (!confirmed)
+        if (MessageBox.Show("Are you sure you want to delete the selected song info from Azure SQL DB via Web API?", "Confirmation",
+                           MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
         {
             return;
         }
 
         try
         {
-            // Note: Mouse.OverrideCursor = Cursors.Wait not available in WinUI, so use status message            
-            StatusMessage = "Deleting song from Azure SQL DB via Web API...please wait";
+            Mouse.OverrideCursor = Cursors.Wait;
+            
+            StatusMessage = $"Deleting song from Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})...please wait";
 
             string error = await _azureService.DeleteSongInfoAsync(SelectedSongInfoFromAzure!.Id, AppSettings.IsWebApiViaAuth);
             if (error.IsBlank())
@@ -101,7 +130,7 @@ public partial class AzureViewModel : BaseViewModel
                 SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
                 UpdateAzureTabButtons();
 
-                StatusMessage = "Song deleted from Azure SQL DB via Web API";
+                StatusMessage = $"Song deleted from Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})";
             }
             else
             {
@@ -122,13 +151,17 @@ public partial class AzureViewModel : BaseViewModel
         {
             ErrorStatusMessage = ex.Message;
         }
+        finally
+        {
+            Mouse.OverrideCursor = null;
+        }
     }
 
     [RelayCommand]
     private async Task RefreshAzure()
     {
         await LoadSongInfoListOnAzureTabAsync();
-    }
+    }   
 
     [RelayCommand]
     private async Task OpenInExternalBrowser()
@@ -139,24 +172,22 @@ public partial class AzureViewModel : BaseViewModel
             ErrorStatusMessage = error;
         }
     }
-
-    // Note: {x:Bind CoverUrl, Mode=TwoWay,..} with DataTemplate x:Key="ListViewTemplate" in AzurePage would cause  
-    //          value.CoverUrl become Microsoft.UI.Xaml.Media.Imaging.BitmapImage, so ensure Mode=OneWay!
+    
     partial void OnSelectedSongInfoFromAzureChanged(SongInfo? value)
     {
         if (value == null)
         {
-            SongInfoViewModel.UpdateSongInfoSection(null, SongInfoViewModel.ReadyToListen, string.Empty);
+            SongInfoViewModel.UpdateSongInfoPanel(null, null, string.Empty);
             AzureWebView2Control.Source = Constants.YouTubeHomeUri;
-            AppSettings.SelectedAzureTabSongSummary = "YouTube home";
-            AppSettings.SelectedAzureTabSongUrl = Constants.YouTubeHomeUrl;
+            AppSettings.AzureTab.SelectedSongSummary = "YouTube home";
+            AppSettings.AzureTab.SelectedSongUrl = Constants.YouTubeHomeUrl;
         }
         else
         {
-            SongInfoViewModel.UpdateSongInfoSection(value.CoverUrl, value.ToString(), value.Lyrics);
+            SongInfoViewModel.UpdateSongInfoPanel(value.CoverUrl, value.ToString(), value.Lyrics);
             AzureWebView2Control.Source = new Uri(value.SongUrl);
-            AppSettings.SelectedAzureTabSongSummary = value.ToString();
-            AppSettings.SelectedAzureTabSongUrl = value.SongUrl;
+            AppSettings.AzureTab.SelectedSongSummary = value.ToString();
+            AppSettings.AzureTab.SelectedSongUrl = value.SongUrl;
         }
         UpdateAzureTabButtons();
     }
@@ -166,3 +197,4 @@ public partial class AzureViewModel : BaseViewModel
         IsDeleteAzureEnabled = SongInfoListFromAzure.Count > 0 && SelectedSongInfoFromAzure != null;
     }
 }
+

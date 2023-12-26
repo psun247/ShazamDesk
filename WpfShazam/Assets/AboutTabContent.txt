@@ -12,7 +12,7 @@ Shazam is a popular mobile app that can identify a song being played. This C# WP
 Core class library that contains Azure AD authentication logic, services, models, helpers, etc.  It is use by WpfShazam and WinUI3Shazam UI projects.
 
 ==ShazamCore's major folders
-Services - each service (used by MainViewModel) supports one aspect of the app
+Services - each service supports one aspect of the app
 
 AzureADClientSecret - Azure AD bear token authentication stuff (JWT token)
 
@@ -21,10 +21,10 @@ Data / Migrations - Code First DbContext for SQL Server + Entity Framework
 ClientServerShared - requests and responses for Web API, DTOs, constants, and so on, shared between client and server projects
 
 ==WpfShazam project
-WPF Shazam UI project that references ShazamCore project.  It contains all the views and view models (MainViewModel - one partial class per tab, e.g. MainViewModel.Azure.cs).
+WPF Shazam UI project that references ShazamCore project.  It is structured by tab functionalities. Each tab consists of a view, a viewmodel, etc. For example, Azure folder contains Azure-related stuff.
 
 ==Shazam tab
-Listen to a device (mic or speaker) selected from the dropdown list.  When identified, a list of songs will be displayed，plus lyrics (if found) will be shown on the right side of the screen.  Usually, you could select a song from the list to save it with the lyrics in Azure SQL DB (via Web API) or SQL Server DB.
+Listen to a device (mic or speaker) selected from the dropdown list.  When identified, a list of songs will be displayed，plus lyrics (if found) will be shown on the right side of the screen.  Usually, you could select a song from the list to save it with the lyrics in Azure SQL DB (via Web API) or in local SQL Server DB.
 
 You can open currently selected YouTube video externally with default web browser.
 
@@ -37,6 +37,12 @@ You can delete a selected item in the list via Web API.
 Similar to Azure tab, but data store is a local SQL Server DB.  Note: SQL Server needs to be installed and configured properly, and connection string change in SqlServerContext.cs will be required.
 
 Since SQL Server is assumed not installed, default mode on this tab is Demo that shows a predefined read-only list.
+
+==WinUI 3 tab
+This is a placeholder with a hyperlink to WinUI3Shazam project.
+
+==Settings tab
+It lists app settings, mostly read-only.  All changed settings will be saved on app exit.
 
 ==About tab
 It is this tab with a RichTextBox containing a FlowDocument with Paragraphs built programmatically.

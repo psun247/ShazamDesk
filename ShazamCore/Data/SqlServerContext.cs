@@ -5,9 +5,6 @@ namespace ShazamCore.Data
 {
     public class SqlServerContext : DbContext
     {
-        // Note: ensure to match your MS SQL Server installation and configuration        
-        private const string _ConnectionString = "Data Source=localhost\\SQLDev2019;Initial Catalog=WpfShazamDB;Integrated Security=True;Encrypt=False;MultipleActiveResultSets=True";
-
 #if false // Create your [WpfShazamDB] and [SongInfo] as needed
 USE [WpfShazamDB]
 GO
@@ -35,14 +32,22 @@ CREATE TABLE [dbo].[SongInfo](
 GO
 #endif
 
+        private readonly string _connectionString;
+
         // This ctor is needed for PM> Update-Database
         public SqlServerContext()
         {
+            _connectionString = "Data Source=localhost\\SQLDev2019;Initial Catalog=WpfShazamDB;Integrated Security=True;Encrypt=False;MultipleActiveResultSets=True";
+        }
+
+        public SqlServerContext(string connectionString)
+        {
+            _connectionString = connectionString;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(_ConnectionString);
+            optionsBuilder.UseSqlServer(_connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

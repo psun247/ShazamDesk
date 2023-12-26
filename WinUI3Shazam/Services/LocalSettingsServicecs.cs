@@ -1,4 +1,5 @@
-﻿using ShazamCore.Helpers;
+﻿using ClientServerShared;
+using ShazamCore.Helpers;
 using WinUI3Shazam.Contracts.Services;
 using WinUI3Shazam.Models;
 
@@ -8,9 +9,9 @@ public class LocalSettingsService : ILocalSettingsService
 {
     private const string _defaultApplicationDataFolder = "WinUI3Shazam";
 #if DEBUG
-    private const string _defaultLocalSettingsFile = "LocalSettings_Debug.json";
+    private const string _defaultLocalSettingsFile = "WinUI3ShazamSettings_Debug.json";
 #else
-    private const string _defaultLocalSettingsFile = "LocalSettings.json";
+    private const string _defaultLocalSettingsFile = "WinUI3ShazamSettings.json";
 #endif
 
     private readonly string _localApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -52,11 +53,11 @@ public class LocalSettingsService : ILocalSettingsService
             // Note: empty / invalid SelectedSongUrl will cause HyperLink binding to crash!
             if (!Uri.TryCreate(appSettings!.SelectedShazamTabSongUrl, UriKind.Absolute, out Uri? uri))
             {
-                appSettings.SelectedShazamTabSongUrl = Helpers.Constants.YouTubeHomeUrl;
+                appSettings.SelectedShazamTabSongUrl = Constants.YouTubeHomeUrl;
             }
             if (!Uri.TryCreate(appSettings!.SelectedAzureTabSongUrl, UriKind.Absolute, out uri))
             {
-                appSettings.SelectedAzureTabSongUrl = Helpers.Constants.YouTubeHomeUrl;
+                appSettings.SelectedAzureTabSongUrl = Constants.YouTubeHomeUrl;
             }
         }
         catch (Exception)

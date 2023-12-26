@@ -11,5 +11,5 @@ public sealed partial class SongInfoUserControl : UserControl
     }
 
     // Set by parent. The new is just a place holder.
-    public SongInfoViewModel ViewModel { get; set; } = new SongInfoViewModel(null);
+    public SongInfoViewModel ViewModel { get; set; } = new SongInfoViewModel();
 }

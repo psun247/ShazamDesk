@@ -1,0 +1,30 @@
+<UserControl    
+    x:Class="WpfShazam.Main.StatusBarUserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"    
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"    
+    mc:Ignorable="d">
+    <Border BorderThickness="0,3,0,0" BorderBrush="{StaticResource ShazamThemeBrush}">
+        <Border.Background>
+            <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
+                <GradientStop Color="#FFF2F2F2" Offset="0.0" />
+                <GradientStop Color="#FFE6E6E6" Offset="0.25" />
+                <GradientStop Color="#FFCCCCCC" Offset="0.75" />
+                <GradientStop Color="LightGray" Offset="1.0" />
+            </LinearGradientBrush>
+        </Border.Background>
+        <TextBlock Text="{Binding StatusMessage}" ToolTip="{Binding StatusMessage}" 
+            FontSize="18" FontWeight="SemiBold" Margin="15,10,0,0">
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsErrorStatusMessage}" Value="True">
+                            <Setter Property="Foreground" Value="Red"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+    </Border>
+</UserControl>

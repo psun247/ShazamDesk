@@ -1,8 +1,8 @@
-﻿using WinUI3Shazam.Helpers;
+﻿using ClientServerShared;
 
 namespace WinUI3Shazam.Models;
 
-// Note: this is used in WinUI3 only (ShazamCore.Models.AppSettings for WPF)
+// Note: this is used in WinUI3 only
 public class AppSettings
 {
     public const string ShazamTabName = "ShazamTab";

@@ -1,14 +1,23 @@
-﻿using System.Diagnostics;
-using Microsoft.UI.Xaml.Controls;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
 using ClientServerShared;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Web.WebView2.Wpf;
+using ShazamCore.Helpers;
 using ShazamCore.Models;
 using ShazamCore.Services;
-using ShazamCore.Helpers;
-using WinUI3Shazam.Contracts.Services;
+using WpfShazam.Main;
+using WpfShazam.Settings;
 
-namespace WinUI3Shazam.ViewModels;
+namespace WpfShazam.Shazam;
 
 public partial class ShazamViewModel : BaseViewModel
 {
@@ -18,22 +27,24 @@ public partial class ShazamViewModel : BaseViewModel
     private static readonly HttpClient _HttpClient = new() { Timeout = TimeSpan.FromSeconds(6) }; // 3 would be too short for Listen()
 
     private IAzureService _azureService;
-    private DeviceService _deviceService;    
-    private VideoInfo? _lastVideoInfo;    
+    private SqlServerService _sqlServerService;
+    private DeviceService _deviceService;
+    private VideoInfo? _lastVideoInfo;
     private CancellationTokenSource? _cancelTokenSource;
     private bool _userCanceledListen;
-    
-    public ShazamViewModel(ILocalSettingsService localsettingsService, IAzureService azureService)
+
+    public ShazamViewModel(ILocalSettingsService localsettingsService, IAzureService azureService,
+                            SqlServerService sqlServerService)
                         : base(localsettingsService)
     {
         _azureService = azureService;
-        _deviceService = new DeviceService(_HttpClient);        
+        _sqlServerService = sqlServerService;
+        _deviceService = new DeviceService(_HttpClient);
 
         SetCommandBusy(false);
-        ListenButtonText = _ListenToButtonText;               
+        ListenButtonText = _ListenToButtonText;
     }
-        
-    // Set from ShazamPage
+
     public WebView2 ShazamWebView2Control { get; set; } = new WebView2();
     // Video address in the textbox (whenever navigated to)
     [ObservableProperty]
@@ -49,15 +60,34 @@ public partial class ShazamViewModel : BaseViewModel
     DeviceSetting? _selectedDeviceSetting;
     [ObservableProperty]
     bool _isAddAzureEnabled;
-    
+    [ObservableProperty]
+    bool _isAddSqlServerEnabled;
+
     public void Initialize()
     {
         ReloadDeviceList(isAppStartup: true);
+
+        ShazamWebView2Control = new WebView2
+        {
+            Name = "ShazamWebView2",
+            Source = Constants.YouTubeHomeUri,
+        };
+        ShazamWebView2Control.SourceChanged += (s, e) =>
+        {
+            // Always update the textbox (so can copy to clipboard)
+            // not the same as YouTube behavior (only update at the top)                
+            CurrentVideoUrl = ShazamWebView2Control.Source.AbsoluteUri;
+        };
+        ShazamWebView2Control.Source = new Uri(AppSettings.ShazamTab.SelectedSongUrl);
+        OnPropertyChanged(nameof(ShazamWebView2Control));
+
+        SongInfoViewModel.SongInfoPanelVisibility = AppSettings.ShazamTab.IsSongInfoPanelVisible ?
+                                                        Visibility.Visible : Visibility.Collapsed;
     }
 
     public void OnShazamTabActivated()
     {
-        AppSettings.SelectedTabName = Models.AppSettings.ShazamTabName;
+        AppSettings.SelectedTabName = AppSettings.ShazamTabName;
         StatusMessage = _DefaultListenToMessage;
 
         UpdateShazamTabButtons();
@@ -70,7 +100,7 @@ public partial class ShazamViewModel : BaseViewModel
             List<DeviceInfo> deviceInfoList = _deviceService.GetDeviceList();
             DeviceSettingList = deviceInfoList.Select(x => new DeviceSetting { DeviceName = x.DeviceName, DeviceID = x.DeviceID }).ToList();
             // Note: leave SelectedDeviceSetting as null to force the user to select a right device
-            SelectedDeviceSetting = DeviceSettingList.FirstOrDefault(x => x.DeviceID == AppSettings.SelectedDeviceID);
+            SelectedDeviceSetting = DeviceSettingList.FirstOrDefault(x => x.DeviceID == AppSettings.ShazamTab.SelectedDeviceID);
             if (isAppStartup)
             {
                 StatusMessage = _DefaultListenToMessage;
@@ -138,7 +168,7 @@ public partial class ShazamViewModel : BaseViewModel
 
                 BindWebView2Control(videoInfo.YouTubeWebSiteSearch);
 
-                if (await SongInfoViewModel.UpdateSongInfoSectionAsync(videoInfo))
+                if (await SongInfoViewModel.UpdateSongInfoPanelAsync(videoInfo))
                 {
                     // Hang on this for SQL Server
                     _lastVideoInfo = videoInfo;
@@ -179,9 +209,10 @@ public partial class ShazamViewModel : BaseViewModel
         }
 
         try
-        {            
-            // Note: Mouse.OverrideCursor = Cursors.Wait not available in WinUI, so use status message
-            StatusMessage = "Adding song to Azure SQL DB via Web API...please wait";
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            StatusMessage = $"Adding song to Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})...please wait";
 
             var songInfo = new SongInfo
             {
@@ -196,7 +227,7 @@ public partial class ShazamViewModel : BaseViewModel
             if (error.IsBlank())
             {
                 _IsAzureTabInSync = false;
-                StatusMessage = "Song added to Azure SQL DB via Web API";
+                StatusMessage = $"Song added to Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})";
             }
             else
             {
@@ -205,14 +236,54 @@ public partial class ShazamViewModel : BaseViewModel
         }
         catch (HttpRequestException ex)
         {
-            await HandleHttpRequestExceptionAsync(ex, AppSettings.IsWebApiViaAuth, _azureService);
+            HandleHttpRequestExceptionAsync(ex, AppSettings.IsWebApiViaAuth, _azureService);
         }
         catch (Exception ex)
         {
             ErrorStatusMessage = ex.Message;
-        }        
+        }
+        finally
+        {
+            Mouse.OverrideCursor = null;
+        }
     }
-    
+
+    [RelayCommand]
+    private void AddSqlServer()
+    {
+        if (_lastVideoInfo == null)
+        {
+            return;
+        }
+
+        try
+        {
+            StatusMessage = "Adding song info to SQL Server DB...please wait";
+
+            var songInfo = new SongInfo
+            {
+                Artist = _lastVideoInfo.Artist,
+                Description = _lastVideoInfo.Song,
+                CoverUrl = _lastVideoInfo.CoverUrl,
+                Lyrics = SongInfoViewModel.SongLyrics,
+                SongUrl = CurrentVideoUrl // Assume CurrentVideoUri is a matching song or YouTube search
+            };
+            if (_sqlServerService.AddSongInfo(songInfo, out string error))
+            {
+                _IsSqlServerTabInSync = false;
+                StatusMessage = "Song info added to SQL Server DB";
+            }
+            else
+            {
+                ErrorStatusMessage = error;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorStatusMessage = ex.Message;
+        }
+    }
+
     [RelayCommand]
     private async Task OpenInExternalBrowser()
     {
@@ -222,13 +293,13 @@ public partial class ShazamViewModel : BaseViewModel
             ErrorStatusMessage = error;
         }
     }
-    
-    public void GoVideoUrl(string url)
+
+    [RelayCommand]
+    public void GoVideoUrl()
     {
         try
         {
-            BindWebView2Control(url);
-            CurrentVideoUrl = url;
+            BindWebView2Control(CurrentVideoUrl);
         }
         catch (Exception ex)
         {
@@ -238,7 +309,8 @@ public partial class ShazamViewModel : BaseViewModel
 
     private void UpdateShazamTabButtons()
     {
-        IsAddAzureEnabled = _lastVideoInfo != null;        
+        IsAddAzureEnabled = _lastVideoInfo != null;
+        IsAddSqlServerEnabled = AppSettings.SqlServerTab.IsSqlServerEnabled && _lastVideoInfo != null;
     }
 
     private void ShowProgress(bool isProgressOn)
@@ -262,8 +334,8 @@ public partial class ShazamViewModel : BaseViewModel
     {
         if (value != null)
         {
-            AppSettings.SelectedDeviceName = value.DeviceName;
-            AppSettings.SelectedDeviceID = value.DeviceID;
+            AppSettings.ShazamTab.SelectedDeviceName = value.DeviceName;
+            AppSettings.ShazamTab.SelectedDeviceID = value.DeviceID;
 
             StatusMessage = $"Selected listening device '{value.DeviceName}'";
         }
@@ -271,7 +343,7 @@ public partial class ShazamViewModel : BaseViewModel
 
     partial void OnCurrentVideoUrlChanged(string value)
     {
-        AppSettings.SelectedShazamTabSongUrl = value;
+        AppSettings.ShazamTab.SelectedSongUrl = value;
     }
 
     private void SetCommandBusy(bool isCommandBusy)
@@ -301,5 +373,5 @@ public partial class ShazamViewModel : BaseViewModel
                 ShazamWebView2Control.Source = uri;
             }
         }
-    }    
+    }
 }

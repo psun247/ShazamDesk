@@ -1,0 +1,93 @@
+﻿<Window x:Class="WpfShazam.Main.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"                
+        xmlns:ui="http://schemas.modernwpf.com/2019"                
+        xmlns:shazam="clr-namespace:WpfShazam.Shazam"
+        xmlns:azure="clr-namespace:WpfShazam.Azure"
+        xmlns:sqlserver="clr-namespace:WpfShazam.SqlServer"
+        xmlns:winui3="clr-namespace:WpfShazam.WinUI3"
+        xmlns:settings="clr-namespace:WpfShazam.Settings"
+        xmlns:about="clr-namespace:WpfShazam.About"
+        mc:Ignorable="d"        
+        Icon="pack://application:,,,/Assets/WpfShazam.ico"
+        WindowStartupLocation="CenterScreen"
+        Title="{Binding AppTitle}" Height="1000" Width="1650" MinHeight="300" MinWidth="800">
+
+    <Grid Background="#EDEDED">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*" MinHeight="230" />
+        </Grid.RowDefinitions>
+
+        <!--Top app bar area-->
+        <Border Grid.Row="0" BorderThickness="0,1,0,1" BorderBrush="Black" IsEnabled="{Binding IsCommandNotBusy}" >
+            <ui:SimpleStackPanel Orientation="Horizontal" Background="{StaticResource ShazamThemeBrush}">
+                <TextBlock Text="WPF Shazam - " FontSize="18" FontWeight="SemiBold" Foreground="White" 
+                            VerticalAlignment="Center" Margin="15,0,0,0" />
+                <TextBlock Text="Identify songs like the popular mobile app Shazam plus Azure SQL DB / Web API / SQL Server DB + EF / WinUI 3!" 
+                            FontSize="18" Foreground="White" VerticalAlignment="Center" />
+            </ui:SimpleStackPanel>
+        </Border>
+
+        <TabControl x:Name="TabControlName" Grid.Row="1" TabStripPlacement="Top" MinWidth="400">
+            <TabControl.Items>
+                <TabItem  x:Name="ShazamTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
+                    <TabItem.Header>
+                        <TextBlock Text="Shazam" Margin="6,2" />
+                    </TabItem.Header>
+                    <ui:TabItemHelper.Icon>
+                        <ui:BitmapIcon UriSource="/Assets/shazam.png" ShowAsMonochrome="False" />
+                    </ui:TabItemHelper.Icon>
+                    <shazam:ShazamUserControl DataContext="{Binding ShazamViewModel}" />
+                </TabItem>
+                <TabItem x:Name="AzureTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
+                    <TabItem.Header>
+                        <TextBlock Text="Azure" Margin="6,2" />
+                    </TabItem.Header>
+                    <ui:TabItemHelper.Icon>
+                        <ui:BitmapIcon UriSource="/Assets/azure.png" ShowAsMonochrome="False" />
+                    </ui:TabItemHelper.Icon>
+                    <azure:AzureUserControl DataContext="{Binding AzureViewModel}" />
+                </TabItem>
+                <TabItem x:Name="SqlServerTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
+                    <TabItem.Header>
+                        <TextBlock Text="SQL Server" Margin="6,2" />
+                    </TabItem.Header>
+                    <ui:TabItemHelper.Icon>
+                        <ui:BitmapIcon UriSource="/Assets/database.png" ShowAsMonochrome="False" />
+                    </ui:TabItemHelper.Icon>
+                    <sqlserver:SqlServerUserControl DataContext="{Binding SqlServerViewModel}" />
+                </TabItem>
+                <TabItem x:Name="WinUI3TabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
+                    <TabItem.Header>
+                        <TextBlock Text="WinUI 3" Margin="6,2" />
+                    </TabItem.Header>
+                    <ui:TabItemHelper.Icon>
+                        <ui:BitmapIcon UriSource="/Assets/winui3.png" ShowAsMonochrome="False" />
+                    </ui:TabItemHelper.Icon>
+                    <winui3:WinUI3UserControl DataContext="{Binding WinUI3ViewModel}" />
+                </TabItem>
+                <TabItem x:Name="SettingsTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
+                    <TabItem.Header>
+                        <TextBlock Text="Settings" Margin="6,2" />
+                    </TabItem.Header>
+                    <ui:TabItemHelper.Icon>
+                        <ui:SymbolIcon Symbol="Setting" />
+                    </ui:TabItemHelper.Icon>
+                    <settings:SettingsUserControl DataContext="{Binding SettingsViewModel}" />
+                </TabItem>
+                <TabItem x:Name="AboutTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
+                    <TabItem.Header>
+                        <TextBlock Text="About" Margin="6,2" />
+                    </TabItem.Header>
+                    <ui:TabItemHelper.Icon>
+                        <ui:BitmapIcon UriSource="/Assets/about.png" ShowAsMonochrome="False" />
+                    </ui:TabItemHelper.Icon>
+                    <about:AboutUserControl DataContext="{Binding AboutViewModel}" />
+                </TabItem>
+            </TabControl.Items>
+        </TabControl>
+    </Grid>
+</Window>

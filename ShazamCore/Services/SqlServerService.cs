@@ -2,23 +2,26 @@
 using ShazamCore.Models;
 
 namespace ShazamCore.Services
-{
+{    
     public class SqlServerService
     {
-        public SqlServerService()
+        private readonly string _connectionString;
+
+        public SqlServerService(string connectionString)
         {
+            _connectionString = connectionString;
         }
 
         public List<SongInfo> GetAllSongInfoList()
         {
-            using var context = new SqlServerContext();
+            using var context = new SqlServerContext(_connectionString);
             return context.SongInfo.ToList();
         }
 
         public bool AddSongInfo(SongInfo songInfo, out string error)
         {
             error = string.Empty;
-            using var context = new SqlServerContext();
+            using var context = new SqlServerContext(_connectionString);
             if (context.SongInfo.Any(x => x.SongUrl == songInfo.SongUrl))
             {
                 error = $"Song url '{songInfo.SongUrl}' already exists in local SQL Server DB";
@@ -32,7 +35,7 @@ namespace ShazamCore.Services
 
         public bool DeleteSongInfo(string songUrl)
         {
-            using var context = new SqlServerContext();
+            using var context = new SqlServerContext(_connectionString);
             var songInfo = context.SongInfo.FirstOrDefault(x => x.SongUrl == songUrl);
             if (songInfo != null)
             {

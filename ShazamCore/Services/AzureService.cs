@@ -4,7 +4,7 @@ using ShazamCore.Models;
 
 namespace ShazamCore.Services
 {
-    // Note: IAzureService is used in WinUI3 only
+    // Note: after going with multiple VMs in WpfShazam, IAzureService is now used in both WPF and WinUI3
     public interface IAzureService
     {
         Task CreateWebApiClientsAsync();
@@ -74,9 +74,8 @@ namespace ShazamCore.Services
                 // Guess: Only available for work and school accounts and not personal Microsoft accounts.
                 // So GetAzureADInfoUserNamePasswordAsync() should work in theory, but not in this app
             }
-            catch (Exception ex)
-            {
-                string todoLogThisMessage = ex.Message;
+            catch (Exception)
+            {                
             }
             return azureADInfo;
         }

@@ -1,0 +1,101 @@
+﻿<UserControl x:Class="WpfShazam.Settings.SettingsUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"                           
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <Grid Background="#EDEDED">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Text="Azure AD Web API:" FontSize="20" FontWeight="SemiBold" Margin="20,15,0,0" />
+            <CheckBox Content="Use JWT token" FontSize="15" IsChecked="{Binding IsWebApiViaAuth, Mode=TwoWay}" Margin="20,15,0,0" />
+            <TextBlock FontSize="18" Margin="10,20,0,0">     
+                 <Hyperlink x:Name="WebApiUrlHyperlink" NavigateUri="{Binding WebApiUrl, Mode=OneWay}">                    
+                     <Run Text="{Binding WebApiUrl, Mode=OneWay}" />                    
+                 </Hyperlink>
+            </TextBlock>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="20,10,0,5" >
+            <TextBlock Text="Selected tab name: " FontSize="22" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding AppSettings.SelectedTabName}" FontSize="18" Margin="10,5,0,0" />
+        </StackPanel>
+        <!--Shazam tab settings-->
+        <Label Grid.Row="2" Content="Shazam tab settings" FontSize="22" FontWeight="SemiBold" Margin="20,10,0,0"  />
+        <StackPanel Grid.Row="3" Margin="50,15,0,5" >
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Selected device name: " FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding AppSettings.ShazamTab.SelectedDeviceName}" FontSize="18" Margin="10,2,0,10" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Selected device ID: " FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding AppSettings.ShazamTab.SelectedDeviceID}" FontSize="18" Margin="10,2,0,10" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Selected song: " FontSize="20" FontWeight="SemiBold" />
+                <TextBlock FontSize="18" Margin="10,2,0,10">                    
+                    <!--Need both NavigateUri and Run's Text-->
+                    <Hyperlink x:Name="SelectedShazamTabSongUrlHyperlink" NavigateUri="{Binding AppSettings.ShazamTab.SelectedSongUrl}" >
+                        <Run Text="{Binding AppSettings.ShazamTab.SelectedSongUrl}" />
+                    </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Song info panel visible: " FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding AppSettings.ShazamTab.IsSongInfoPanelVisibleText}" Margin="10,3,0,0" />
+            </StackPanel>
+        </StackPanel>
+        <!--Azure tab settings-->
+        <Label Grid.Row="4" Content="Azure tab settings" FontSize="22" FontWeight="SemiBold" Margin="20,10,0,0" />
+        <StackPanel Grid.Row="5" Margin="50,15,0,5" >
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Selected song: " FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding AppSettings.AzureTab.SelectedSongSummary}" FontSize="18" Margin="10,2,0,10"/>
+                <TextBlock FontSize="18" Margin="10,2,0,10">                                         
+                     <Hyperlink x:Name="SelectedAzureTabSongUrlHyperlink" NavigateUri="{Binding AppSettings.AzureTab.SelectedSongUrl}" >
+                         <Run Text="{Binding AppSettings.AzureTab.SelectedSongUrl}" />
+                     </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Song info panel visible: " FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding AppSettings.AzureTab.IsSongInfoPanelVisibleText}" Margin="10,3,0,0"/>
+            </StackPanel>
+        </StackPanel>
+        <!--SqlServer tab settings-->
+        <Label Grid.Row="6" Content="SQL Server tab settings" FontSize="22" FontWeight="SemiBold" Margin="20,10,0,0"  />
+        <StackPanel Grid.Row="7" Margin="50,15,0,5" >
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="SQL Server mode enabled: " FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10" />
+                <TextBlock Text="{Binding AppSettings.SqlServerTab.IsSqlServerEnabledText}" Margin="10,3,0,0"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Selected song: " FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding AppSettings.SqlServerTab.SelectedSongSummary}" FontSize="18" Margin="10,2,0,10"/>
+                <TextBlock FontSize="18" Margin="10,2,0,10">                                 
+             <Hyperlink x:Name="SelectedSqlServerTabSongUrlHyperlink" NavigateUri="{Binding AppSettings.SqlServerTab.SelectedSongUrl}" >
+                 <Run Text="{Binding AppSettings.SqlServerTab.SelectedSongUrl}" />
+             </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Song info panel visible: " FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding AppSettings.SqlServerTab.IsSongInfoPanelVisibleText}" Margin="10,3,0,0"/>
+            </StackPanel>
+        </StackPanel>
+        <TextBox  Grid.Row="8" Text="{Binding SettingsChangedNote, Mode=OneTime}" IsReadOnly="True" TextWrapping="Wrap" 
+                  FontSize="18" Foreground="Red" Background="#EDEDED" Margin="20,20,20,0"/>
+    </Grid>
+</UserControl>

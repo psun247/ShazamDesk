@@ -1,45 +1,52 @@
-﻿using System.Text;
-using Windows.ApplicationModel.DataTransfer;
-using Microsoft.UI.Xaml;
+﻿using System;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShazamCore.Helpers;
 using ShazamCore.Models;
 using ShazamCore.Services;
+using WpfShazam.Main;
 
-namespace WinUI3Shazam.ViewModels;
+namespace WpfShazam.SongInfoPanel;
 
-public partial class SongInfoViewModel : ObservableObject
+// Note: on app start, there may be many binding error messages in Debug Window
+//          because SongInfoViewModel is not yet set as DataContext for SongInfoUserControl yet
+public partial class SongInfoViewModel : ObservableRecipient
 {
-    public const string ReadyToListen = "Ready to 'Listen to'. When a song is identified, its lyrics is queried and displayed (if found).";
+    private const string _ReadyToListen = "Ready to 'Listen to'. When a song is identified, its lyrics is queried and displayed (if found).";
     private const string _SongLyricsNotFound = "Not found";
     // In WinUI3, null will cause Image binging crash, but in WPF, it needs to be null for no image. Here use predefined image for null.
-    private const string _NullImage = "/Assets/WinUI3Shazam.ico";
+    private const string _NullImage = "/Assets/WpfShazam.ico";
 
     // If lyricsApiKey not working, get a new one at: https://genius.com/developers
     private LyricsService _lyricsService = new LyricsService("0LoCEwmokQ1E865SpcLGyVUJvcVYtWfAAsTndJPcz7vWWFxTbqflNXNvRyt5vJzZ");
-   
-    public SongInfoViewModel()
-    {        
-    }    
+
+    private ISongInfoPanelMessaging _songInfoPanelMessaging;
+
+    public SongInfoViewModel(ISongInfoPanelMessaging songInfoPanelMessaging)
+    {
+        _songInfoPanelMessaging = songInfoPanelMessaging;
+    }
 
     [ObservableProperty]
-    Visibility _songInfoSectionVisibility = Visibility.Visible;
+    Visibility _songInfoPanelVisibility = Visibility.Visible;
     [ObservableProperty]
     string? _songCoverUrl = _NullImage;
     [ObservableProperty]
-    string _songInfoText = ReadyToListen;
+    string _songInfoText = _ReadyToListen;
     [ObservableProperty]
     string? _songLyrics;
 
-    public void UpdateSongInfoSection(string? songCoverUrl, string songInfoText, string? songLyrics)
+    public void UpdateSongInfoPanel(string? songCoverUrl, string? songInfoText, string? songLyrics)
     {
         SongCoverUrl = songCoverUrl ?? _NullImage;
-        SongInfoText = songInfoText;
+        SongInfoText = songInfoText ?? _ReadyToListen;
         SongLyrics = songLyrics;
     }
 
-    public async Task<bool> UpdateSongInfoSectionAsync(VideoInfo videoInfo)
+    public async Task<bool> UpdateSongInfoPanelAsync(VideoInfo videoInfo)
     {
         bool updated = true;
         try
@@ -58,7 +65,7 @@ public partial class SongInfoViewModel : ObservableObject
             }
         }
         catch (Exception)
-        {           
+        {
             updated = false;
         }
         return updated;
@@ -68,7 +75,7 @@ public partial class SongInfoViewModel : ObservableObject
     private void CopySongInfo()
     {
         var sb = new StringBuilder();
-        if (SongInfoText != ReadyToListen)
+        if (SongInfoText != _ReadyToListen)
         {
             sb.AppendLine(SongInfoText);
             sb.AppendLine(string.Empty);
@@ -87,19 +94,29 @@ public partial class SongInfoViewModel : ObservableObject
         string result = sb.ToString();
         if (result.IsNotBlank())
         {
-            var package = new DataPackage();
-            package.SetText(result);
-            Clipboard.SetContent(package);
+            Clipboard.SetText(result);
 
-            BaseViewModel.SendNotificationToast("Song info copied to clipboard");
+            _songInfoPanelMessaging.NotifyCopiedToClipboard("Song info copied to clipboard");
         }
-    }    
+    }
+
+    [RelayCommand]
+    private void ExpandOrCollapseSongInfoPanel()
+    {
+        SongInfoPanelVisibility = (SongInfoPanelVisibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;
+
+        // See BaseViewModel's ISongInfoPanelMessaging / SongInfoPanelVisibleChanged()
+        if (_songInfoPanelMessaging != null)
+        {
+            _songInfoPanelMessaging.SongInfoPanelVisibleChanged(SongInfoPanelVisibility == Visibility.Visible);
+        }
+    }
 
     partial void OnSongCoverUrlChanged(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            SongInfoText = ReadyToListen;
+            SongInfoText = _ReadyToListen;
         }
     }
 }
