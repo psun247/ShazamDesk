@@ -5,9 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"                           
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-
     <Grid Background="#EDEDED">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -32,9 +33,39 @@
             <TextBlock Text="Selected tab name: " FontSize="22" FontWeight="SemiBold" />
             <TextBlock Text="{Binding AppSettings.SelectedTabName}" FontSize="18" Margin="10,5,0,0" />
         </StackPanel>
-        <!--Shazam tab settings-->
-        <Label Grid.Row="2" Content="Shazam tab settings" FontSize="22" FontWeight="SemiBold" Margin="20,10,0,0"  />
+        <!--ChatGPT tab settings-->
+        <Label Grid.Row="2" Content="ChatGPT tab settings" FontSize="22" FontWeight="SemiBold" Margin="20,10,0,0" />
         <StackPanel Grid.Row="3" Margin="50,15,0,5" >
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Open AI API key: " FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding AppSettings.ChatGPTTab.OpenaiApiKey}" Margin="10,3,0,10"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Get your API key: " FontSize="20" FontWeight="SemiBold" />
+                <TextBlock FontSize="18" Margin="10,2,0,5">                                         
+                     <Hyperlink x:Name="ApiKeyUrlHyperlink" NavigateUri="https://platform.openai.com/account/api-keys" >
+                         <Run Text="https://platform.openai.com/account/api-keys" />
+                     </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Left" Background="Ivory" Margin="0, 5, 0, 0">
+                <TextBlock Text="1. An API key looks like 'sk-IhZgIN...xyWPd'" 
+                            Foreground="DarkGreen" Margin="10, 10, 15, 0" />
+                <TextBlock Text="2. After obtaining your API key, exit this app" 
+                            Foreground="DarkGreen" Margin="10, 10, 15, 0" />
+                <TextBlock Text="3. Copy the key for OpenaiApiKey field under ChatGPTTab in setting file:" 
+                            Foreground="DarkGreen" Margin="10, 10, 15, 0" />
+                <TextBox Text="{Binding SettingsFilePath, Mode=OneTime}" IsReadOnly="True"  FontSize="18" 
+                            Foreground="DarkGreen" Margin="30, 10, 15, 0" />
+                <TextBlock Text="4. Restart this app and the key should display for the 'Open AI API key:' field above" 
+                            Foreground="DarkGreen" Margin="10, 10, 15, 0" />
+                <TextBlock Text="5. Go to ChatGPT tab and ChatGPT should now be ready to work" 
+                            Foreground="DarkGreen" Margin="10, 10, 15, 10" />
+            </StackPanel>
+        </StackPanel>
+        <!--Shazam tab settings-->
+        <Label Grid.Row="4" Content="Shazam tab settings" FontSize="22" FontWeight="SemiBold" Margin="20,10,0,0" />
+        <StackPanel Grid.Row="5" Margin="50,15,0,5" >
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Selected device name: " FontSize="20" FontWeight="SemiBold" />
                 <TextBlock Text="{Binding AppSettings.ShazamTab.SelectedDeviceName}" FontSize="18" Margin="10,2,0,10" />
@@ -58,8 +89,8 @@
             </StackPanel>
         </StackPanel>
         <!--Azure tab settings-->
-        <Label Grid.Row="4" Content="Azure tab settings" FontSize="22" FontWeight="SemiBold" Margin="20,10,0,0" />
-        <StackPanel Grid.Row="5" Margin="50,15,0,5" >
+        <Label Grid.Row="6" Content="Azure tab settings" FontSize="22" FontWeight="SemiBold" Margin="20,10,0,0" />
+        <StackPanel Grid.Row="7" Margin="50,15,0,5" >
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Selected song: " FontSize="20" FontWeight="SemiBold" />
                 <TextBlock Text="{Binding AppSettings.AzureTab.SelectedSongSummary}" FontSize="18" Margin="10,2,0,10"/>
@@ -75,8 +106,8 @@
             </StackPanel>
         </StackPanel>
         <!--SqlServer tab settings-->
-        <Label Grid.Row="6" Content="SQL Server tab settings" FontSize="22" FontWeight="SemiBold" Margin="20,10,0,0"  />
-        <StackPanel Grid.Row="7" Margin="50,15,0,5" >
+        <Label Grid.Row="8" Content="SQL Server tab settings" FontSize="22" FontWeight="SemiBold" Margin="20,10,0,0"  />
+        <StackPanel Grid.Row="9" Margin="50,15,0,5" >
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="SQL Server mode enabled: " FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10" />
                 <TextBlock Text="{Binding AppSettings.SqlServerTab.IsSqlServerEnabledText}" Margin="10,3,0,0"/>
@@ -95,7 +126,7 @@
                 <TextBlock Text="{Binding AppSettings.SqlServerTab.IsSongInfoPanelVisibleText}" Margin="10,3,0,0"/>
             </StackPanel>
         </StackPanel>
-        <TextBox  Grid.Row="8" Text="{Binding SettingsChangedNote, Mode=OneTime}" IsReadOnly="True" TextWrapping="Wrap" 
-                  FontSize="18" Foreground="Red" Background="#EDEDED" Margin="20,20,20,0"/>
+        <TextBox Grid.Row="10" Text="{Binding SettingsChangedNote, Mode=OneTime}" IsReadOnly="True" TextWrapping="Wrap" 
+                    HorizontalAlignment="Left" FontSize="18" Foreground="DarkGreen" Background="Ivory" Margin="20,20,0,0"/>
     </Grid>
 </UserControl>

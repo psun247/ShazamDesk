@@ -1,7 +1,8 @@
 ﻿using System;
 using WpfShazam.About;
-using WpfShazam.Azure;
+using WpfShazam.ChatGPT;
 using WpfShazam.Shazam;
+using WpfShazam.Azure;
 using WpfShazam.SqlServer;
 using WpfShazam.WinUI3;
 using WpfShazam.Settings;
@@ -14,10 +15,11 @@ public class MainViewModel : BaseViewModel
                     : base(localsettingsService)
     {
         Version ver = Environment.Version;
-        AppTitle = $"WpfShazam (.NET {ver.Major}.{ver.Minor}.{ver.Build} runtime) by Peter Sun";
+        AppTitle = $"ChatGPT + Shazam (.NET {ver.Major}.{ver.Minor}.{ver.Build} runtime) by Peter Sun";
 #if DEBUG
         AppTitle += " - Debug";
 #endif
+        ChatGPTViewModel = App.GetService<ChatGPTViewModel>();
         ShazamViewModel = App.GetService<ShazamViewModel>();
         AzureViewModel = App.GetService<AzureViewModel>();
         SqlServerViewModel = App.GetService<SqlServerViewModel>();
@@ -27,6 +29,7 @@ public class MainViewModel : BaseViewModel
     }
 
     public string AppTitle { get; }
+    public ChatGPTViewModel ChatGPTViewModel { get; }
     public ShazamViewModel ShazamViewModel { get; }
     public AzureViewModel AzureViewModel { get; }
     public SqlServerViewModel SqlServerViewModel { get; }

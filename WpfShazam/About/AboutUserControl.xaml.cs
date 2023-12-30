@@ -23,6 +23,7 @@ public partial class AboutUserControl : UserControl
                 _isFirstLoaded = true;
 
                 BuildAboutRichTextBox(aboutViewModel);
+                return;
             }
 
             aboutViewModel.OnAboutTabActivated();

@@ -17,6 +17,7 @@ public partial class SettingsViewModel : ObservableRecipient
     }
 
     public AppSettings AppSettings => _localsettingsService.AppSettings;
+    public string SettingsFilePath => _localsettingsService.SettingsFilePath;    
     [ObservableProperty]
     string _settingsChangedNote = string.Empty;
     [ObservableProperty]

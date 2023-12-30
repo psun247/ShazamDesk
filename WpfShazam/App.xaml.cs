@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using RestoreWindowPlace;
 using ShazamCore.Services;
 using WpfShazam.Main;
+using WpfShazam.ChatGPT;
 using WpfShazam.Shazam;
 using WpfShazam.Azure;
 using WpfShazam.SqlServer;
@@ -34,11 +35,12 @@ public partial class App : Application
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
             services.AddSingleton<IAzureService, AzureService>();
             // Note: ensure to match your MS SQL Server installation and configuration        
-            string connectionString = "Data Source=localhost\\SQLDev2019;Initial Catalog=WpfShazamDB2;Integrated Security=True;Encrypt=False;MultipleActiveResultSets=True";
+            string connectionString = "Data Source=localhost\\SQLDev2019;Initial Catalog=WpfShazamDB;Integrated Security=True;Encrypt=False;MultipleActiveResultSets=True";
             services.AddSingleton<SqlServerService>(x => new SqlServerService(connectionString));
-
+            
             // ViewModels            
             services.AddSingleton<MainViewModel>();
+            services.AddSingleton<ChatGPTViewModel>();
             services.AddSingleton<ShazamViewModel>();
             services.AddSingleton<AzureViewModel>();
             services.AddSingleton<SqlServerViewModel>();

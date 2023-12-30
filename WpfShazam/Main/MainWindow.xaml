@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"                
-        xmlns:ui="http://schemas.modernwpf.com/2019"                
+        xmlns:ui="http://schemas.modernwpf.com/2019" 
+        xmlns:chatgpt="clr-namespace:WpfShazam.ChatGPT"
         xmlns:shazam="clr-namespace:WpfShazam.Shazam"
         xmlns:azure="clr-namespace:WpfShazam.Azure"
         xmlns:sqlserver="clr-namespace:WpfShazam.SqlServer"
@@ -24,15 +25,24 @@
         <!--Top app bar area-->
         <Border Grid.Row="0" BorderThickness="0,1,0,1" BorderBrush="Black" IsEnabled="{Binding IsCommandNotBusy}" >
             <ui:SimpleStackPanel Orientation="Horizontal" Background="{StaticResource ShazamThemeBrush}">
-                <TextBlock Text="WPF Shazam - " FontSize="18" FontWeight="SemiBold" Foreground="White" 
+                <TextBlock Text="WPF ChatGPT + WPF Shazam - " FontSize="18" FontWeight="SemiBold" Foreground="White" 
                             VerticalAlignment="Center" Margin="15,0,0,0" />
                 <TextBlock Text="Identify songs like the popular mobile app Shazam plus Azure SQL DB / Web API / SQL Server DB + EF / WinUI 3!" 
                             FontSize="18" Foreground="White" VerticalAlignment="Center" />
             </ui:SimpleStackPanel>
         </Border>
 
-        <TabControl x:Name="TabControlName" Grid.Row="1" TabStripPlacement="Top" MinWidth="400">
+        <TabControl x:Name="TabControlName" Grid.Row="1" TabStripPlacement="Top" MinWidth="400" SelectedIndex="-1">
             <TabControl.Items>
+                <TabItem  x:Name="ChatGPTTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
+                    <TabItem.Header>
+                        <TextBlock Text="ChatGPT" Margin="6,2" />
+                    </TabItem.Header>
+                    <ui:TabItemHelper.Icon>
+                        <ui:BitmapIcon UriSource="/Assets/chatgpt.png" ShowAsMonochrome="False" />
+                    </ui:TabItemHelper.Icon>
+                    <chatgpt:ChatGPTUserControl DataContext="{Binding ChatGPTViewModel}" />
+                </TabItem>
                 <TabItem  x:Name="ShazamTabItem" BorderThickness="1,1,1,0" BorderBrush="Gray">
                     <TabItem.Header>
                         <TextBlock Text="Shazam" Margin="6,2" />

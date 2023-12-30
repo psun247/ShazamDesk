@@ -103,7 +103,7 @@ public partial class SqlServerViewModel : BaseViewModel
                 DemoModeBindSongInfoListFromSqlServer();
             }
 
-            StatusMessage = isSqlServerEnabled ? "Set to SQL Server mode" : "Set to Demo mode";
+            StatusMessage = isSqlServerEnabled ? "SQL Server mode" : "Demo mode (predefined read-only list)";
             return true;
         }
         catch (Microsoft.Data.SqlClient.SqlException ex)

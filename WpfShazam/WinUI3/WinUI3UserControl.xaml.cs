@@ -6,6 +6,8 @@ namespace WpfShazam.WinUI3;
 
 public partial class WinUI3UserControl : UserControl
 {
+    private bool _isFirstLoaded;
+
     public WinUI3UserControl()
     {
         InitializeComponent();
@@ -18,6 +20,12 @@ public partial class WinUI3UserControl : UserControl
     {
         if (DataContext is WinUI3ViewModel winui3ViewModel)
         {
+            if (!_isFirstLoaded)
+            {
+                _isFirstLoaded = true;                
+                return;
+            }
+
             winui3ViewModel.OnWinUI3TabActivated();
         }
     }

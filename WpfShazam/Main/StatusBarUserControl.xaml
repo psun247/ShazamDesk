@@ -15,7 +15,7 @@
             </LinearGradientBrush>
         </Border.Background>
         <TextBlock Text="{Binding StatusMessage}" ToolTip="{Binding StatusMessage}" 
-            FontSize="18" FontWeight="SemiBold" Margin="15,10,0,0">
+                    FontSize="18" FontWeight="SemiBold" Margin="10,8,0,0">
             <TextBlock.Style>
                 <Style TargetType="{x:Type TextBlock}">
                     <Style.Triggers>

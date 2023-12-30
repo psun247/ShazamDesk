@@ -27,10 +27,12 @@ public partial class MainWindow : Window
             var localsettingsService = App.GetService<ILocalSettingsService>();
             switch (localsettingsService.AppSettings.SelectedTabName)
             {
-                case AppSettings.ShazamTabName:
-                    // This is first-time (Loaded) and Shazam tab (the first tab) is already selected, so 'ShazamTabItem.IsSelected = true;'
-                    // won't fire TabControlName.SelectionChanged, hence directly calling OnShazamTabActivated.         
-                    _mainViewModel.ShazamViewModel.OnShazamTabActivated();
+                // Because of TabControl's SelectedIndex="-1", all '.IsSelected = true' now works properly.
+                case AppSettings.ChatGPTTabName:
+                    ChatGPTTabItem.IsSelected = true;
+                    break;
+                case AppSettings.ShazamTabName:                    
+                    ShazamTabItem.IsSelected = true;
                     break;
                 case AppSettings.AzureTabName:
                     AzureTabItem.IsSelected = true;
