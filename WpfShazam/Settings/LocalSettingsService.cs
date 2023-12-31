@@ -7,23 +7,22 @@ namespace WpfShazam.Settings
 {
     public class LocalSettingsService : ILocalSettingsService
     {
-        private const string _defaultApplicationDataFolder = "WpfShazam";
-#if DEBUG
-        private const string _defaultLocalSettingsFile = "WpfShazamSettings_Debug.json";
-#else
-    private const string _defaultLocalSettingsFile = "WpfShazamSettings.json";
-#endif
-
-        private readonly string _localApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         private readonly string _applicationDataFolder;
 
         // If this class doesn't know how to access file system (but do), I would inject IFileService fileService
         public LocalSettingsService()
         {
             // C:\Users\peter\AppData\Local\WpfShazam
-            _applicationDataFolder = Path.Combine(_localApplicationData, _defaultApplicationDataFolder);
+            _applicationDataFolder =
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "WpfShazam");
+            // Note: .NET 6 and 8 executables share the same settings file
             // C:\Users\peter\AppData\Local\WpfShazam\WpfShazamSettings.json
-            SettingsFilePath = Path.Combine(_applicationDataFolder, _defaultLocalSettingsFile);
+#if DEBUG            
+            SettingsFilePath = Path.Combine(_applicationDataFolder, "WpfShazamSettings_Debug.json");
+#else
+            SettingsFilePath = Path.Combine(_applicationDataFolder, "WpfShazamSettings.json");
+#endif
         }
 
         // Only one LocalSettingsService and one AppSettings in the app

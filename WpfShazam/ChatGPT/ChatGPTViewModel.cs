@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
@@ -19,8 +18,8 @@ namespace WpfShazam.ChatGPT
 {
     public partial class ChatGPTViewModel : BaseViewModel
     {
-        private readonly char[] _StartTokensToTrim = new char[] { '?', '\n', ' ' };
-        private readonly string[] _StartTokensToSkip = new string[] { "?", " ", "Bot", ":", "", "\n" };
+        //private readonly char[] _StartTokensToTrim = new char[] { '?', '\n', ' ' };
+        //private readonly string[] _StartTokensToSkip = new string[] { "?", " ", "Bot", ":", "", "\n" };
 
         private WhetstoneChatGPTService _chatGPTService;
         private ChatHistory _chatHistory;
@@ -37,7 +36,7 @@ namespace WpfShazam.ChatGPT
             _selectedChat = ChatList[0];
             _chatInputList = new List<string>();
             _chatInputListIndex = -1;
-            _chatInput = "What is Shazam?"; // TODO: better one
+            _chatInput = "What is Shazam?";
             StatusMessage = "Ctrl+Enter for input of multiple lines. Enter-Key to send. Ctrl+UpArrow or Ctrl+DownArrow to navigate previous input lines.";
         }
 
@@ -53,10 +52,10 @@ namespace WpfShazam.ChatGPT
         [ObservableProperty]
         private string _chatResult = string.Empty;
         [ObservableProperty]
-        private Message? _selectedMessage;        
+        private Message? _selectedMessage;
         [ObservableProperty]
         private bool _isStreamingMode = true;
-        
+
         public void OnChatGPTTabActivated()
         {
             AppSettings.SelectedTabName = AppSettings.ChatGPTTabName;
@@ -270,23 +269,29 @@ namespace WpfShazam.ChatGPT
 
         private async Task<string> DoSend(string prompt)
         {
-            string result = string.Empty;
-            ChatGPTCompletionResponse? completionResponse =
-                await _chatGPTService.GetResponseDataAsync(prompt, CancellationToken.None);
-            if (completionResponse?.Choices != null)
-            {
-                foreach (ChatGPTChoice? choice in completionResponse.Choices)
-                {
-                    if (choice != null)
-                    {
-                        // If '?' is not included in prompt, it will show up in the first character
-                        //result += choice.Text.Replace("\n", string.Empty).Replace("?", string.Empty);
-                        // Keep \n since result could be C# code, so only TrimStart                    
-                        result += choice.Text?.TrimStart(_StartTokensToTrim);
-                    }
-                }
-            }
-            return result;
+            // GPT-3.5
+            ChatGPTChatCompletionResponse? completionResponse = await _chatGPTService.CreateChatCompletionAsync(prompt);
+            ChatGPTChatCompletionMessage? message = completionResponse?.GetMessage();
+            return message?.Content ?? string.Empty;
+
+            // GPT-3, deprecated on 2024-01-04
+            //string result = string.Empty;
+            //ChatGPTCompletionResponse? completionResponse =
+            //    await _chatGPTService.GetResponseDataAsync(prompt, CancellationToken.None);
+            //if (completionResponse?.Choices != null)
+            //{
+            //    foreach (ChatGPTChoice? choice in completionResponse.Choices)
+            //    {
+            //        if (choice != null)
+            //        {
+            //            // If '?' is not included in prompt, it will show up in the first character
+            //            //result += choice.Text.Replace("\n", string.Empty).Replace("?", string.Empty);
+            //            // Keep \n since result could be C# code, so only TrimStart                    
+            //            result += choice.Text?.TrimStart(_StartTokensToTrim);
+            //        }
+            //    }
+            //}
+            //return result;
         }
 
         private async Task SendStreamingMode(string prompt)
@@ -294,34 +299,45 @@ namespace WpfShazam.ChatGPT
             // Append with message.Text below
             Message message = SelectedChat.AddMessage("Bot", string.Empty);
 
-            bool handledStartTokensToSkip = false;
-            //int totalTokens = 0;
-            await Task.CompletedTask;
-            await foreach (ChatGPTCompletionStreamResponse? completionResponse
-                            in _chatGPTService.StreamCompletionAsync(prompt, CancellationToken.None))
+            // GPT-3.5
+            await foreach (ChatGPTChatCompletionStreamResponse? response in
+                                _chatGPTService.StreamChatCompletionAsync(prompt).ConfigureAwait(false))
             {
-                if (completionResponse is not null)
+                if (response is not null)
                 {
-                    string? part = completionResponse.GetCompletionText();
-                    if (!handledStartTokensToSkip)
-                    {
-                        if (part.In(_StartTokensToSkip))
-                        {
-                            continue;
-                        }
-
-                        part = part?.TrimStart(_StartTokensToTrim);
-                        handledStartTokensToSkip = true;
-                    }
-
-                    message.Text = message.Text + part;
-
-                    //if (completionResponse.Usage is not null)
-                    //{
-                    //    totalTokens += completionResponse.Usage.TotalTokens;
-                    //}
+                    string? responseText = response.GetCompletionText();
+                    message.Text = message.Text + responseText;
                 }
             }
+
+            // GPT-3, deprecated on 2024-01-04
+            //bool handledStartTokensToSkip = false;
+            ////int totalTokens = 0;            
+            //await foreach (ChatGPTCompletionStreamResponse? completionResponse
+            //                in _chatGPTService.StreamCompletionAsync(prompt, CancellationToken.None))
+            //{
+            //    if (completionResponse is not null)
+            //    {
+            //        string? part = completionResponse.GetCompletionText();
+            //        if (!handledStartTokensToSkip)
+            //        {
+            //            if (part.In(_StartTokensToSkip))
+            //            {
+            //                continue;
+            //            }
+
+            //            part = part?.TrimStart(_StartTokensToTrim);
+            //            handledStartTokensToSkip = true;
+            //        }
+
+            //        message.Text = message.Text + part;
+
+            //        //if (completionResponse.Usage is not null)
+            //        //{
+            //        //    totalTokens += completionResponse.Usage.TotalTokens;
+            //        //}
+            //    }
+            //}
         }
 
         private void PostProcessOnSend(string prompt)
@@ -348,13 +364,12 @@ namespace WpfShazam.ChatGPT
             }
         }
 
-        
         // ESC key maps to ClearChatInputCommand
         [RelayCommand]
         private void ClearChatInput()
         {
             ChatInput = string.Empty;
-        }        
+        }
 
         private void SetCommandBusy(bool isCommandBusy, bool isSendCommand = false)
         {
@@ -368,14 +383,7 @@ namespace WpfShazam.ChatGPT
             }
             else
             {
-                if (_isCommandBusy)
-                {
-                    Mouse.OverrideCursor = Cursors.Wait;
-                }
-                else
-                {
-                    Mouse.OverrideCursor = null;
-                }
+                Mouse.OverrideCursor = _isCommandBusy ? Cursors.Wait : null;
             }
         }
 
