@@ -1,15 +1,15 @@
 # WpfShazam
-This is a C# WPF app that identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via Web API or in SQL Server DB.
+This is a C# WPF app that identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via Web API or in SQL Server DB. 
 
-# WinUI3Shazam
-This is WinUI 3 version. For details, run WinUI3Shazam.sln and see source code in WinUI3Shazam folder.
+# ChatGPT tab
+C# WPF version of ChatGPT using Open AI API key. This is independent of the rest of the app.
 
-![image](https://github.com/psun247/ShazamDesk/assets/31531761/b9b03b42-5027-4647-99b7-2de63d29a124)
+![image](https://github.com/psun247/ShazamDesk/assets/31531761/612c1854-f299-4321-850e-7b78513f3803)
 
-# Shazam tab (WpfShazam UI)
+# Shazam tab
 Listen to a device (mic or speaker) selected from the dropdown list.  When identified, a list of songs will be displayed, plus lyrics (if found) will be shown on the right side of the screen.  Usually, you could select a song from the list to save it with the lyrics in Azure SQL DB (via Web API) or SQL Server DB.
 
-![image](https://github.com/psun247/ShazamDesk/assets/31531761/999bdeba-905e-446f-ad74-ab226ea1351a)
+![image](https://github.com/psun247/ShazamDesk/assets/31531761/3baece02-17a9-44ab-a35f-79e8205333c2)
 
 You can open currently selected YouTube video externally with default web browser.
 
@@ -18,17 +18,17 @@ Saved song info list in Azure SQL DB (via Web API) will be displayed in the left
 
 You can delete a selected item in the list via Web API.
 
-![image](https://github.com/psun247/ShazamDesk/assets/31531761/07d53b2e-c85a-47c1-836a-40780d98e5b2)
+![image](https://github.com/psun247/ShazamDesk/assets/31531761/b1708d2a-a5a8-467d-9710-294ef766ca0f)
 
 # SQL Server tab
 Similar to Azure tab, but data store is a local SQL Server DB.  Note: SQL Server needs to be installed and configured properly, and connection string change in SqlServerContext.cs will be required.
 
 Since SQL Server is assumed not installed, default mode on this tab is Demo that shows a predefined read-only list.
 
-![image](https://github.com/psun247/ShazamDesk/assets/31531761/a7d714a0-6141-417a-9707-01143952bab9)
+![image](https://github.com/psun247/ShazamDesk/assets/31531761/fc799b1b-06b3-4402-8cb1-a0177419d990)
 
 # Build
-Build WpfShazam.sln with Visual Studio Professional 2022 (64-bit) or Community version.  This app is targeted for .NET 7. To compile for .NET 6, simply modify WpfShazam.csproj.
+Build WpfShazam.sln with Visual Studio Professional 2022 (64-bit) or Community version.  This app is targeted for .NET 6 and 8. If .NET 8 is not installed on your computer, remove net8.0 from WpfShazam.csproj and ShazamCore.csproj and compile the WpfShazam.sln.
 
 # Run
 To run WpfShazam app without compiling it,
@@ -38,6 +38,11 @@ To run WpfShazam app without compiling it,
 
 # Usage
 Audio devices will be automatically queried and displayed in the dropdown list.  You will need to select a proper device for 'Listen to'.  Add and Delete buttons are for Azure SQL DB (via Web API) or SQL Server DB. The blue arrow on the right side of the screen will expand or collapse the song info section.
+
+# WinUI3Shazam
+This is WinUI 3 version of WfpShazam. For details, run WinUI3Shazam.sln and see source code in WinUI3Shazam folder.
+
+![image](https://github.com/psun247/ShazamDesk/assets/31531761/17a11527-d3b7-4ee6-939a-0d5d1c303e4b)
 
 # Supporting libraries
 CommunityToolkit.Mvvm
@@ -55,6 +60,10 @@ https://www.nuget.org/packages/ModernWpfUI/
 NAudio
 
 https://www.nuget.org/packages/NAudio
+
+Whetstone.ChatGPT
+
+https://www.nuget.org/packages/Whetstone.ChatGPT
  
 RestoreWindowPlace
 
