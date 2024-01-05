@@ -18,10 +18,12 @@ public partial class BaseViewModel : ObservableRecipient, ISongInfoPanelMessagin
         SongInfoViewModel = new SongInfoViewModel(this);
     }
 
+    protected string _ViaGrpcServiceOrWebAPI => AppSettings.IsGrpcService ?
+                                                    "via gRPC service" : $"via Web API ({AppSettings.WebApiAuthInfo})";    
     protected ILocalSettingsService _localsettingsService;
     public AppSettings AppSettings => _localsettingsService.AppSettings;
 
-    public SongInfoViewModel SongInfoViewModel { get; }    
+    public SongInfoViewModel SongInfoViewModel { get; }
     [ObservableProperty]
     string _statusMessage = string.Empty;
     [ObservableProperty]
@@ -33,6 +35,7 @@ public partial class BaseViewModel : ObservableRecipient, ISongInfoPanelMessagin
 
     protected bool _isCommandBusy;
     public bool IsCommandNotBusy => !_isCommandBusy;
+    public string ViaWebApiOrGrpInfo => AppSettings.IsGrpcService ? "via gRPC service" : "via Web API";
 
     // Handle text red color via DataTrigger with IsErrorStatusMessage (not necessarily an error message)
     protected string ErrorStatusMessage
@@ -81,13 +84,17 @@ public partial class BaseViewModel : ObservableRecipient, ISongInfoPanelMessagin
         }
     }
 
-    protected async Task HandleHttpRequestExceptionAsync(HttpRequestException ex, bool viaAuth, IAzureService azureService)
+    protected async Task HandleHttpRequestExceptionAsync(HttpRequestException ex, IAzureService azureService)
     {
-        if (viaAuth && ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        if (!AppSettings.IsGrpcService && AppSettings.IsWebApiViaAuth && ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             // 401 (Unauthorized) via auth when toke expires (60 minutes), so generate a new token                
             await azureService.UseNewAccessTokenAsync();
             ErrorStatusMessage = $"{ex.Message} New access token has been created.  Please click Refresh button to try again.";
+        }
+        else if (ex.InnerException != null)
+        {
+            ErrorStatusMessage = $"{ex.Message} ({ex.InnerException.Message})";
         }
         else
         {

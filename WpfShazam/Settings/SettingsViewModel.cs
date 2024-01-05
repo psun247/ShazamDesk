@@ -17,19 +17,32 @@ public partial class SettingsViewModel : ObservableRecipient
     }
 
     public AppSettings AppSettings => _localsettingsService.AppSettings;
-    public string SettingsFilePath => _localsettingsService.SettingsFilePath;    
+    public string SettingsFilePath => _localsettingsService.SettingsFilePath;
     [ObservableProperty]
     string _settingsChangedNote = string.Empty;
     [ObservableProperty]
+    bool _isGrpcService;    
+    [ObservableProperty]
     bool _isWebApiViaAuth;
     [ObservableProperty]
-    string? _webApiUrl;
+    string? _webApiUrl; 
+    [ObservableProperty]
+    bool _isGrpc;
+    [ObservableProperty]
+    string? _grpcUrl;
 
     public void OnSettingsTabActivated()
     {
         OnPropertyChanged(nameof(AppSettings));
 
+        IsGrpcService = _localsettingsService.AppSettings.IsGrpcService;
         IsWebApiViaAuth = _localsettingsService.AppSettings.IsWebApiViaAuth;
+        UpdateWebApiUrl(IsWebApiViaAuth);
+    }
+
+    partial void OnIsGrpcServiceChanged(bool value)
+    {
+        IsGrpcService = _localsettingsService.AppSettings.IsGrpcService = value;
         UpdateWebApiUrl(IsWebApiViaAuth);
     }
 

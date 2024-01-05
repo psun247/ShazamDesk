@@ -12,6 +12,8 @@ public class AppSettings
     public const string WinUI3TabName = "WinUI3Tab";
     public const string AboutTabName = "AboutTab";
 
+    // When true, overwrite Web API option
+    public bool IsGrpcService { get; set; }
     // Auth or no-auth Azure Web API for the whole app
     public bool IsWebApiViaAuth { get; set; }
     [JsonIgnore]
@@ -27,7 +29,7 @@ public class AppSettings
 public class ChatGPTTabSettings
 {
     // A key looks like sk-IhZg.....25xyWPd. You can create your key at: https://platform.openai.com/account/api-keys
-    public string OpenaiApiKey { get; set; } = string.Empty;    
+    public string OpenaiApiKey { get; set; } = string.Empty;
 }
 
 public class ShazamTabSettings

@@ -14,6 +14,7 @@ using Microsoft.Web.WebView2.Wpf;
 using ShazamCore.Helpers;
 using ShazamCore.Models;
 using ShazamCore.Services;
+using WpfShazam.Grpc;
 using WpfShazam.Main;
 using WpfShazam.Settings;
 
@@ -27,6 +28,7 @@ public partial class ShazamViewModel : BaseViewModel
     private static readonly HttpClient _HttpClient = new() { Timeout = TimeSpan.FromSeconds(6) }; // 3 would be too short for Listen()
 
     private IAzureService _azureService;
+    private GrpcService _grpcService;
     private SqlServerService _sqlServerService;
     private DeviceService _deviceService;
     private VideoInfo? _lastVideoInfo;
@@ -34,10 +36,11 @@ public partial class ShazamViewModel : BaseViewModel
     private bool _userCanceledListen;
 
     public ShazamViewModel(ILocalSettingsService localsettingsService, IAzureService azureService,
-                            SqlServerService sqlServerService)
+                            GrpcService grpcService, SqlServerService sqlServerService)
                         : base(localsettingsService)
     {
         _azureService = azureService;
+        _grpcService = grpcService;
         _sqlServerService = sqlServerService;
         _deviceService = new DeviceService(_HttpClient);
 
@@ -90,7 +93,7 @@ public partial class ShazamViewModel : BaseViewModel
         AppSettings.SelectedTabName = AppSettings.ShazamTabName;
         StatusMessage = _DefaultListenToMessage;
 
-        UpdateShazamTabButtons();
+        UpdateUIElements();
     }
 
     private void ReloadDeviceList(bool isAppStartup)
@@ -173,7 +176,7 @@ public partial class ShazamViewModel : BaseViewModel
                     // Hang on this for SQL Server
                     _lastVideoInfo = videoInfo;
 
-                    UpdateShazamTabButtons();
+                    UpdateUIElements();
                     StatusMessage = $"Identified as '{videoInfo}'";
                 }
             }
@@ -212,7 +215,7 @@ public partial class ShazamViewModel : BaseViewModel
         {
             Mouse.OverrideCursor = Cursors.Wait;
 
-            StatusMessage = $"Adding song to Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})...please wait";
+            StatusMessage = $"Adding song to Azure SQL DB {_ViaGrpcServiceOrWebAPI}...please wait";
 
             var songInfo = new SongInfo
             {
@@ -223,11 +226,13 @@ public partial class ShazamViewModel : BaseViewModel
                 SongUrl = CurrentVideoUrl
             };
 
-            string error = await _azureService.AddSongInfoAsync(songInfo, AppSettings.IsWebApiViaAuth);
+            string error = AppSettings.IsGrpcService ?
+                                        await _grpcService.AddSongInfoAsync(songInfo) :
+                                        await _azureService.AddSongInfoAsync(songInfo, AppSettings.IsWebApiViaAuth);            
             if (error.IsBlank())
             {
                 _IsAzureTabInSync = false;
-                StatusMessage = $"Song added to Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})";
+                StatusMessage = $"Song added to Azure SQL DB {_ViaGrpcServiceOrWebAPI}";
             }
             else
             {
@@ -236,7 +241,7 @@ public partial class ShazamViewModel : BaseViewModel
         }
         catch (HttpRequestException ex)
         {
-            HandleHttpRequestExceptionAsync(ex, AppSettings.IsWebApiViaAuth, _azureService);
+            HandleHttpRequestExceptionAsync(ex, _azureService);
         }
         catch (Exception ex)
         {
@@ -307,9 +312,10 @@ public partial class ShazamViewModel : BaseViewModel
         }
     }
 
-    private void UpdateShazamTabButtons()
+    private void UpdateUIElements()
     {
         IsAddAzureEnabled = _lastVideoInfo != null;
+        OnPropertyChanged(nameof(ViaWebApiOrGrpInfo));
         IsAddSqlServerEnabled = AppSettings.SqlServerTab.IsSqlServerEnabled && _lastVideoInfo != null;
     }
 
@@ -373,5 +379,5 @@ public partial class ShazamViewModel : BaseViewModel
                 ShazamWebView2Control.Source = uri;
             }
         }
-    }
+    }       
 }

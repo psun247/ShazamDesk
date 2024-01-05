@@ -6,7 +6,7 @@
 --See MainViewModel.LoadContentForAboutTab and AboutUserControl
 
 ==Overview
-Shazam is a popular mobile app that can identify a song being played. This C# WPF app does something like that. Plus, it calls a lyrics web service to try to get lyrics for the identified song. It can save song info in Azure SQL DB via Web API or in local SQL Server DB.
+Shazam is a popular mobile app that can identify a song being played. This C# WPF app does something like that. Plus, it calls a lyrics web service to try to get lyrics for the identified song. It can save song info in Azure SQL DB via Web API / gRPC service or in local SQL Server DB.
 
 ==ShazamCore project
 Core class library that contains Azure AD authentication logic, services, models, helpers, etc.  It is use by WpfShazam and WinUI3Shazam UI projects.
@@ -24,14 +24,14 @@ ClientServerShared - requests and responses for Web API, DTOs, constants, and so
 WPF Shazam UI project that references ShazamCore project.  It is structured by tab functionalities. Each tab consists of a view, a viewmodel, etc. For example, Azure folder contains Azure-related stuff.
 
 ==Shazam tab
-Listen to a device (mic or speaker) selected from the dropdown list.  When identified, a list of songs will be displayed，plus lyrics (if found) will be shown on the right side of the screen.  Usually, you could select a song from the list to save it with the lyrics in Azure SQL DB (via Web API) or in local SQL Server DB.
+Listen to a device (mic or speaker) selected from the dropdown list.  When identified, a list of songs will be displayed，plus lyrics (if found) will be shown on the right side of the screen.  Usually, you could select a song from the list to save it with the lyrics in Azure SQL DB (via Web API or gRPC service) or in local SQL Server DB.
 
 You can open currently selected YouTube video externally with default web browser.
 
 ==Azure tab
-Saved song info list in Azure SQL DB (via Web API) will be displayed in the left panel. When an item is selected in the list, the matching YouTube video will display on the right side.
+Saved song info list in Azure SQL DB (via Web API or gRPC service) will be displayed in the left panel. When an item is selected in the list, the matching YouTube video will display on the right side.
 
-You can delete a selected item in the list via Web API.
+You can delete a selected item in the list via Web API or gRPC service.
 
 ==SQL Server tab
 Similar to Azure tab, but data store is a local SQL Server DB.  Note: SQL Server needs to be installed and configured properly, and connection string change in SqlServerContext.cs will be required.

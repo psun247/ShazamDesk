@@ -10,6 +10,7 @@ using WpfShazam.Main;
 using WpfShazam.ChatGPT;
 using WpfShazam.Shazam;
 using WpfShazam.Azure;
+using WpfShazam.Grpc;
 using WpfShazam.SqlServer;
 using WpfShazam.WinUI3;
 using WpfShazam.Settings;
@@ -25,7 +26,7 @@ public partial class App : Application
     {
         InitializeComponent();
 
-        Host = 
+        Host =
         Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().
         UseContentRoot(AppContext.BaseDirectory).
@@ -34,10 +35,14 @@ public partial class App : Application
             // Services                            
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
             services.AddSingleton<IAzureService, AzureService>();
+            //services.AddSingleton<GrpcService>(x => new GrpcService("https://shazamdeskwebapi.azurewebsites.net"));
+            // Instead, replace with local address for testing
+            // Note: gRPC in Azure App Service is not supported as of Jan 20204, but working with my local gRPC service
+            services.AddSingleton<GrpcService>(x => new GrpcService("https://localhost:7026"));
             // Note: ensure to match your MS SQL Server installation and configuration        
             string connectionString = "Data Source=localhost\\SQLDev2019;Initial Catalog=WpfShazamDB;Integrated Security=True;Encrypt=False;MultipleActiveResultSets=True";
             services.AddSingleton<SqlServerService>(x => new SqlServerService(connectionString));
-            
+
             // ViewModels            
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<ChatGPTViewModel>();
@@ -64,7 +69,7 @@ public partial class App : Application
             // where MainWindow_Activated and page loaded event can happen at the same time!
             var azureService = App.GetService<IAzureService>();
             await azureService.CreateWebApiClientsAsync();
-            
+
             var mainViewModel = App.GetService<MainViewModel>();
             var mainWindow = new MainWindow(mainViewModel);
             Current.MainWindow = mainWindow;

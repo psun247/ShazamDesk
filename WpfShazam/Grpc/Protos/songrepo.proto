@@ -1,0 +1,45 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "WpfShazam.Grpc";
+
+// Note: names of package songrepo and service SongRepoGrpc match gRPC server side
+package songrepo;
+
+service SongRepoGrpc {
+  rpc GetAllSongInfoList (GetAllSongInfoListRequest) returns (GetAllSongInfoListResponse);  
+  rpc AddSongInfo (AddSongInfoRequest) returns (AddSongInfoResponse);
+  rpc DeleteSongInfo (DeleteSongInfoRequest) returns (DeleteSongInfoResponse);
+}
+
+message GetAllSongInfoListRequest {  
+}
+
+message SongInfoDTO {
+	int32 SongInfoId = 1;
+    string Artist = 2;
+	string Description = 3;
+	string CoverUrl = 4;
+	string Lyrics = 5;
+	string SongUrl = 6;
+	bool IsDeleted = 7;
+}
+
+message GetAllSongInfoListResponse {
+  repeated SongInfoDTO SongInfoDtoList = 1;
+}
+
+message AddSongInfoRequest {
+  SongInfoDTO SongInfoDTO = 1;
+}
+
+message AddSongInfoResponse {
+  string Error = 1;
+}
+
+message DeleteSongInfoRequest {
+  int32 SongInfoId = 1;
+}
+
+message DeleteSongInfoResponse {
+  string Error = 1;
+}

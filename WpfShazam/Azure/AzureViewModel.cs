@@ -14,6 +14,7 @@ using ShazamCore.Models;
 using ShazamCore.Helpers;
 using ShazamCore.Services;
 using WpfShazam.Main;
+using WpfShazam.Grpc;
 using WpfShazam.Settings;
 
 namespace WpfShazam.Azure;
@@ -21,11 +22,13 @@ namespace WpfShazam.Azure;
 public partial class AzureViewModel : BaseViewModel
 {
     private IAzureService _azureService;
+    private GrpcService _grpcService;
 
-    public AzureViewModel(ILocalSettingsService localsettingsService, IAzureService azureService)
+    public AzureViewModel(ILocalSettingsService localsettingsService, IAzureService azureService, GrpcService grpcService)
                             : base(localsettingsService)
     {
         _azureService = azureService;
+        _grpcService = grpcService;
     }
 
     // Track for open with browser
@@ -34,31 +37,31 @@ public partial class AzureViewModel : BaseViewModel
     [ObservableProperty]
     ObservableCollection<SongInfo> _songInfoListFromAzure = new ObservableCollection<SongInfo>();
     [ObservableProperty]
-    SongInfo? _selectedSongInfoFromAzure;    
+    SongInfo? _selectedSongInfoFromAzure;
     public WebView2 AzureWebView2Control { get; private set; } = new WebView2();
     [ObservableProperty]
     bool _isDeleteAzureEnabled;
 
     public void Initialize()
-    {        
+    {
         AzureWebView2Control = new WebView2
         {
             Name = "AzureWebView2",
             Source = Constants.YouTubeHomeUri,
         };
         AzureWebView2Control.SourceChanged += (s, e) =>
-        {            
+        {
             CurrentVideoUrl = AzureWebView2Control.Source.AbsoluteUri;
         };
         OnPropertyChanged(nameof(AzureWebView2Control));
-        
+
         SongInfoViewModel.SongInfoPanelVisibility = AppSettings.AzureTab.IsSongInfoPanelVisible ?
                                                        Visibility.Visible : Visibility.Collapsed;
     }
 
     public async Task OnAzureTabActivated()
     {
-        AppSettings.SelectedTabName = AppSettings.AzureTabName;        
+        AppSettings.SelectedTabName = AppSettings.AzureTabName;
 
         if (!_IsAzureTabInSync)
         {
@@ -73,7 +76,7 @@ public partial class AzureViewModel : BaseViewModel
 
             _IsAzureTabInSync = true;
         }
-        UpdateAzureTabButtons();        
+        UpdateUIElements();
     }
 
     private async Task LoadSongInfoListOnAzureTabAsync()
@@ -82,18 +85,20 @@ public partial class AzureViewModel : BaseViewModel
         {
             Mouse.OverrideCursor = Cursors.Wait;
 
-            StatusMessage = $"Loading song list from Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})...please wait";
+            StatusMessage = $"Loading song list from Azure SQL DB {_ViaGrpcServiceOrWebAPI}...please wait";
 
-            var list = await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
+            List<SongInfo> list = AppSettings.IsGrpcService ?
+                                    await _grpcService.GetAllSongInfoListAsync() :
+                                    await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
             SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
 
-            StatusMessage = list.Count == 0 ? $"No song found at Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})" : 
-                                                $"Song list loaded from Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})";
+            StatusMessage = list.Count == 0 ? $"No song found at Azure SQL DB {_ViaGrpcServiceOrWebAPI}" :
+                                                $"Song list loaded from Azure SQL DB {_ViaGrpcServiceOrWebAPI}";
         }
         catch (HttpRequestException ex)
         {
             // Note: leaving SongInfoListFromAzure alone on error seems reasonable (say, server unavailable for a while)            
-            await HandleHttpRequestExceptionAsync(ex, AppSettings.IsWebApiViaAuth, _azureService);
+            await HandleHttpRequestExceptionAsync(ex, _azureService);
         }
         catch (Exception ex)
         {
@@ -109,8 +114,8 @@ public partial class AzureViewModel : BaseViewModel
     [RelayCommand]
     private async Task DeleteAzure()
     {
-        if (MessageBox.Show("Are you sure you want to delete the selected song info from Azure SQL DB via Web API?", "Confirmation",
-                           MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
+        if (MessageBox.Show($"Are you sure you want to delete the selected song info from Azure SQL DB via {_ViaGrpcServiceOrWebAPI}?",
+                            "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) != MessageBoxResult.Yes)
         {
             return;
         }
@@ -118,19 +123,23 @@ public partial class AzureViewModel : BaseViewModel
         try
         {
             Mouse.OverrideCursor = Cursors.Wait;
-            
-            StatusMessage = $"Deleting song from Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})...please wait";
 
-            string error = await _azureService.DeleteSongInfoAsync(SelectedSongInfoFromAzure!.Id, AppSettings.IsWebApiViaAuth);
+            StatusMessage = $"Deleting song from Azure SQL DB {_ViaGrpcServiceOrWebAPI}...please wait";
+
+            string error = AppSettings.IsGrpcService ?
+                                await _grpcService.DeleteSongInfoAsync(SelectedSongInfoFromAzure!.Id) :
+                                await _azureService.DeleteSongInfoAsync(SelectedSongInfoFromAzure!.Id, AppSettings.IsWebApiViaAuth);
             if (error.IsBlank())
             {
-                List<SongInfo> list = await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
+                List<SongInfo> list = AppSettings.IsGrpcService ?
+                                        await _grpcService.GetAllSongInfoListAsync() :
+                                        await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
                 // Note: the following will cause SelectedSongInfoFromAzure in XAML clear binding (i.e. set SelectedSongInfoFromAzure to null),
                 //          hence triggering OnSelectedSongInfoFromAzureChanged()'s 'value == null' logic 
                 SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
-                UpdateAzureTabButtons();
+                UpdateUIElements();
 
-                StatusMessage = $"Song deleted from Azure SQL DB via Web API ({AppSettings.WebApiAuthInfo})";
+                StatusMessage = $"Song deleted from Azure SQL DB {_ViaGrpcServiceOrWebAPI}";
             }
             else
             {
@@ -139,7 +148,7 @@ public partial class AzureViewModel : BaseViewModel
         }
         catch (HttpRequestException ex)
         {
-            await HandleHttpRequestExceptionAsync(ex, AppSettings.IsWebApiViaAuth, _azureService);
+            await HandleHttpRequestExceptionAsync(ex, _azureService);
             ErrorStatusMessage = ex.Message;
         }
         catch (ArgumentException ex)
@@ -161,7 +170,7 @@ public partial class AzureViewModel : BaseViewModel
     private async Task RefreshAzure()
     {
         await LoadSongInfoListOnAzureTabAsync();
-    }   
+    }
 
     [RelayCommand]
     private async Task OpenInExternalBrowser()
@@ -172,7 +181,7 @@ public partial class AzureViewModel : BaseViewModel
             ErrorStatusMessage = error;
         }
     }
-    
+
     partial void OnSelectedSongInfoFromAzureChanged(SongInfo? value)
     {
         if (value == null)
@@ -189,12 +198,12 @@ public partial class AzureViewModel : BaseViewModel
             AppSettings.AzureTab.SelectedSongSummary = value.ToString();
             AppSettings.AzureTab.SelectedSongUrl = value.SongUrl;
         }
-        UpdateAzureTabButtons();
+        UpdateUIElements();
     }
 
-    private void UpdateAzureTabButtons()
+    private void UpdateUIElements()
     {
+        OnPropertyChanged(nameof(ViaWebApiOrGrpInfo));
         IsDeleteAzureEnabled = SongInfoListFromAzure.Count > 0 && SelectedSongInfoFromAzure != null;
     }
 }
-

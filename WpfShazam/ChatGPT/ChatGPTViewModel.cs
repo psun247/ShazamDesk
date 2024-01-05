@@ -177,7 +177,7 @@ namespace WpfShazam.ChatGPT
 
             if (AppSettings.ChatGPTTab.OpenaiApiKey.IsBlank())
             {
-                ErrorStatusMessage = "See Settings tab for getting your Open AI API key";
+                ErrorStatusMessage = "See Settings tab for getting your OpenAI API key";
                 return;
             }
 
