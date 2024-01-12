@@ -1,8 +1,8 @@
-# WpfShazam
-This is a C# WPF app that identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via Web API / gRPC service or in SQL Server DB. 
+# ChatGPT + Shazam
+WPF ChatGPT mimics ChatGPT web UI. WPF Shazam identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via Web API / gRPC service or in SQL Server DB. 
 
 # ChatGPT tab
-C# WPF version of ChatGPT using OpenAI API key. This is independent of the rest of the app.
+WPF version of ChatGPT using OpenAI API key with GPT-3.5 model turbo. This is independent of the rest of the app.
 
 ![image](https://github.com/psun247/ShazamDesk/assets/31531761/612c1854-f299-4321-850e-7b78513f3803)
 
