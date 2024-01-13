@@ -272,26 +272,7 @@ namespace WpfShazam.ChatGPT
             // GPT-3.5
             ChatGPTChatCompletionResponse? completionResponse = await _chatGPTService.CreateChatCompletionAsync(prompt);
             ChatGPTChatCompletionMessage? message = completionResponse?.GetMessage();
-            return message?.Content ?? string.Empty;
-
-            // GPT-3, deprecated on 2024-01-04
-            //string result = string.Empty;
-            //ChatGPTCompletionResponse? completionResponse =
-            //    await _chatGPTService.GetResponseDataAsync(prompt, CancellationToken.None);
-            //if (completionResponse?.Choices != null)
-            //{
-            //    foreach (ChatGPTChoice? choice in completionResponse.Choices)
-            //    {
-            //        if (choice != null)
-            //        {
-            //            // If '?' is not included in prompt, it will show up in the first character
-            //            //result += choice.Text.Replace("\n", string.Empty).Replace("?", string.Empty);
-            //            // Keep \n since result could be C# code, so only TrimStart                    
-            //            result += choice.Text?.TrimStart(_StartTokensToTrim);
-            //        }
-            //    }
-            //}
-            //return result;
+            return message?.Content ?? string.Empty;            
         }
 
         private async Task SendStreamingMode(string prompt)
@@ -309,35 +290,6 @@ namespace WpfShazam.ChatGPT
                     message.Text = message.Text + responseText;
                 }
             }
-
-            // GPT-3, deprecated on 2024-01-04
-            //bool handledStartTokensToSkip = false;
-            ////int totalTokens = 0;            
-            //await foreach (ChatGPTCompletionStreamResponse? completionResponse
-            //                in _chatGPTService.StreamCompletionAsync(prompt, CancellationToken.None))
-            //{
-            //    if (completionResponse is not null)
-            //    {
-            //        string? part = completionResponse.GetCompletionText();
-            //        if (!handledStartTokensToSkip)
-            //        {
-            //            if (part.In(_StartTokensToSkip))
-            //            {
-            //                continue;
-            //            }
-
-            //            part = part?.TrimStart(_StartTokensToTrim);
-            //            handledStartTokensToSkip = true;
-            //        }
-
-            //        message.Text = message.Text + part;
-
-            //        //if (completionResponse.Usage is not null)
-            //        //{
-            //        //    totalTokens += completionResponse.Usage.TotalTokens;
-            //        //}
-            //    }
-            //}
         }
 
         private void PostProcessOnSend(string prompt)
