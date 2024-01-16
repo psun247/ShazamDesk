@@ -225,7 +225,7 @@ public partial class ShazamViewModel : BaseViewModel
             if (error.IsBlank())
             {
                 _IsAzureTabInSync = false;
-                StatusMessage = $"Song added to Azure SQL DB {_ViaGrpcServiceOrWebAPI}";
+                StatusMessage = $"Song added to Azure SQL DB {_ViaGrpcServiceOrWebAPI} - see Azure tab for updated list";
             }
             else
             {
