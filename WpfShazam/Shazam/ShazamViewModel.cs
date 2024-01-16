@@ -30,19 +30,22 @@ public partial class ShazamViewModel : BaseViewModel
     private IAzureService _azureService;
     private GrpcService _grpcService;
     private SqlServerService _sqlServerService;
+    private YouTubeDataService _youtubeDataService;
     private DeviceService _deviceService;
-    private VideoInfo? _lastVideoInfo;
+    private VideoInfo _currentVideoInfo;
     private CancellationTokenSource? _cancelTokenSource;
     private bool _userCanceledListen;
 
     public ShazamViewModel(ILocalSettingsService localsettingsService, IAzureService azureService,
-                            GrpcService grpcService, SqlServerService sqlServerService)
+                            GrpcService grpcService, SqlServerService sqlServerService, YouTubeDataService youtubeDataService)
                         : base(localsettingsService)
     {
         _azureService = azureService;
         _grpcService = grpcService;
         _sqlServerService = sqlServerService;
+        _youtubeDataService = youtubeDataService;
         _deviceService = new DeviceService(_HttpClient);
+        _currentVideoInfo = new VideoInfo();
 
         SetCommandBusy(false);
         ListenButtonText = _ListenToButtonText;
@@ -60,9 +63,7 @@ public partial class ShazamViewModel : BaseViewModel
     [ObservableProperty]
     bool _isProgressOn;
     [ObservableProperty]
-    DeviceSetting? _selectedDeviceSetting;
-    [ObservableProperty]
-    bool _isAddAzureEnabled;
+    DeviceSetting? _selectedDeviceSetting;    
     [ObservableProperty]
     bool _isAddSqlServerEnabled;
 
@@ -173,8 +174,8 @@ public partial class ShazamViewModel : BaseViewModel
 
                 if (await SongInfoViewModel.UpdateSongInfoPanelAsync(videoInfo))
                 {
-                    // Hang on this for SQL Server
-                    _lastVideoInfo = videoInfo;
+                    // Hang on this for Azure / SQL Server
+                    _currentVideoInfo = videoInfo;
 
                     UpdateUIElements();
                     StatusMessage = $"Identified as '{videoInfo}'";
@@ -206,7 +207,8 @@ public partial class ShazamViewModel : BaseViewModel
     [RelayCommand]
     private async Task AddAzure()
     {
-        if (_lastVideoInfo == null)
+        SongInfo? songInfo = await ValidateAddAsync();
+        if (songInfo == null)
         {
             return;
         }
@@ -217,18 +219,9 @@ public partial class ShazamViewModel : BaseViewModel
 
             StatusMessage = $"Adding song to Azure SQL DB {_ViaGrpcServiceOrWebAPI}...please wait";
 
-            var songInfo = new SongInfo
-            {
-                Artist = _lastVideoInfo.Artist,
-                Description = _lastVideoInfo.Song,
-                CoverUrl = _lastVideoInfo.CoverUrl,
-                Lyrics = SongInfoViewModel.SongLyrics,
-                SongUrl = CurrentVideoUrl
-            };
-
             string error = AppSettings.IsGrpcService ?
                                         await _grpcService.AddSongInfoAsync(songInfo) :
-                                        await _azureService.AddSongInfoAsync(songInfo, AppSettings.IsWebApiViaAuth);            
+                                        await _azureService.AddSongInfoAsync(songInfo, AppSettings.IsWebApiViaAuth);
             if (error.IsBlank())
             {
                 _IsAzureTabInSync = false;
@@ -253,10 +246,56 @@ public partial class ShazamViewModel : BaseViewModel
         }
     }
 
-    [RelayCommand]
-    private void AddSqlServer()
+    private async Task<SongInfo?> ValidateAddAsync()
     {
-        if (_lastVideoInfo == null)
+        if (_currentVideoInfo.Link == null)
+        {
+            ErrorStatusMessage = "Nothing to add";
+            return null;
+        }
+
+        bool isYouTubeVideo = GeneralHelper.IsYouTubeVideoUrl(_currentVideoInfo.Link);
+        if (!isYouTubeVideo)
+        {
+            if (!GeneralHelper.IsValidUrl(_currentVideoInfo.Link))
+            {
+                ErrorStatusMessage = "Not a valid url to be added";
+                return null;
+            }
+        }
+
+        if (isYouTubeVideo)
+        {
+            // For a nav link, Artist is blank, while a link from Shazam already has _currentVideoInfo populated
+            if (_currentVideoInfo.Artist.IsBlank())
+            {
+                _currentVideoInfo.Link = GeneralHelper.CleanYouTubeUrl(_currentVideoInfo.Link);
+                _currentVideoInfo = await _youtubeDataService.CreateYouTubeVideoMatch(_currentVideoInfo.Link);
+            }
+        }
+        else
+        {
+            // Non-YouTube url. Save just the name and see LoadSongInfoListOnAzureTabAsync())
+            _currentVideoInfo.CoverUrl = "Info.png";
+            _currentVideoInfo.Song = _currentVideoInfo.Link;
+        }
+
+        return new SongInfo
+        {
+            Artist = _currentVideoInfo.Artist,
+            Description = _currentVideoInfo.Song,
+            CoverUrl = _currentVideoInfo.CoverUrl,
+            Lyrics = SongInfoViewModel.SongLyrics,
+            SongUrl = _currentVideoInfo.Link!,
+            ModifiedDateTime = DateTime.Now
+        };
+    }
+
+    [RelayCommand]
+    private async void AddSqlServer()
+    {
+        SongInfo? songInfo = await ValidateAddAsync();
+        if (songInfo == null)
         {
             return;
         }
@@ -265,14 +304,6 @@ public partial class ShazamViewModel : BaseViewModel
         {
             StatusMessage = "Adding song info to SQL Server DB...please wait";
 
-            var songInfo = new SongInfo
-            {
-                Artist = _lastVideoInfo.Artist,
-                Description = _lastVideoInfo.Song,
-                CoverUrl = _lastVideoInfo.CoverUrl,
-                Lyrics = SongInfoViewModel.SongLyrics,
-                SongUrl = CurrentVideoUrl // Assume CurrentVideoUri is a matching song or YouTube search
-            };
             if (_sqlServerService.AddSongInfo(songInfo, out string error))
             {
                 _IsSqlServerTabInSync = false;
@@ -313,10 +344,9 @@ public partial class ShazamViewModel : BaseViewModel
     }
 
     private void UpdateUIElements()
-    {
-        IsAddAzureEnabled = _lastVideoInfo != null;
-        OnPropertyChanged(nameof(ViaWebApiOrGrpInfo));
-        IsAddSqlServerEnabled = AppSettings.SqlServerTab.IsSqlServerEnabled && _lastVideoInfo != null;
+    {        
+        OnPropertyChanged(nameof(ViaWebApiOrGrpcInfo));
+        IsAddSqlServerEnabled = AppSettings.SqlServerTab.IsSqlServerEnabled;
     }
 
     private void ShowProgress(bool isProgressOn)
@@ -349,7 +379,7 @@ public partial class ShazamViewModel : BaseViewModel
 
     partial void OnCurrentVideoUrlChanged(string value)
     {
-        AppSettings.ShazamTab.SelectedSongUrl = value;
+        AppSettings.ShazamTab.SelectedSongUrl = _currentVideoInfo.Link = value;
     }
 
     private void SetCommandBusy(bool isCommandBusy)
@@ -379,5 +409,5 @@ public partial class ShazamViewModel : BaseViewModel
                 ShazamWebView2Control.Source = uri;
             }
         }
-    }       
+    }
 }

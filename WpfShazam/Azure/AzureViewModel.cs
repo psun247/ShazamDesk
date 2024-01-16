@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Grpc.Core;
 using Microsoft.Web.WebView2.Wpf;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -90,6 +91,15 @@ public partial class AzureViewModel : BaseViewModel
             List<SongInfo> list = AppSettings.IsGrpcService ?
                                     await _grpcService.GetAllSongInfoListAsync() :
                                     await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
+            // Fix songInfo.CoverUrl
+            foreach (var songInfo in list)
+            {
+                if (songInfo.CoverUrl?.Contains("info.png", StringComparison.InvariantCultureIgnoreCase) == true)
+                {
+                    // Saved in DB as "Info.png", but convert to the following, similar to WInUI3Shazam project, because they share the same DB
+                    songInfo.CoverUrl = "/WpfShazam;component/Assets/Info.png";
+                }
+            }
             SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
 
             StatusMessage = list.Count == 0 ? $"No song found at Azure SQL DB {_ViaGrpcServiceOrWebAPI}" :
@@ -99,6 +109,10 @@ public partial class AzureViewModel : BaseViewModel
         {
             // Note: leaving SongInfoListFromAzure alone on error seems reasonable (say, server unavailable for a while)            
             await HandleHttpRequestExceptionAsync(ex, _azureService);
+        }
+        catch (RpcException ex)
+        {
+            ErrorStatusMessage = ex.Message;
         }
         catch (Exception ex)
         {
@@ -203,7 +217,7 @@ public partial class AzureViewModel : BaseViewModel
 
     private void UpdateUIElements()
     {
-        OnPropertyChanged(nameof(ViaWebApiOrGrpInfo));
+        OnPropertyChanged(nameof(ViaWebApiOrGrpcInfo));
         IsDeleteAzureEnabled = SongInfoListFromAzure.Count > 0 && SelectedSongInfoFromAzure != null;
     }
 }

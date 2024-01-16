@@ -10,12 +10,12 @@ namespace ShazamCore.Helpers
         /// string x = null;
         /// if (x.IsBlank())...
         /// </summary>        
-        public static bool IsBlank(this string str) => string.IsNullOrWhiteSpace(str);
+        public static bool IsBlank(this string? str) => string.IsNullOrWhiteSpace(str);
 
         /// <summary>
         /// Detect if a string is not null / empty.
         /// </summary>        
-        public static bool IsNotBlank(this string str) => !IsBlank(str);
+        public static bool IsNotBlank(this string? str) => !IsBlank(str);
 
         public static bool IsEmpty(this ICollection c)
         {

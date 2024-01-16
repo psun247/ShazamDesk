@@ -35,10 +35,14 @@ public partial class App : Application
             // Services                            
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
             services.AddSingleton<IAzureService, AzureService>();
-            //services.AddSingleton<GrpcService>(x => new GrpcService("https://shazamdeskwebapi.azurewebsites.net"));
-            // Instead, replace with local address for testing
+            // Note: if this key doesn't work (e.g. expired), get your key at:
+            //          https://console.cloud.google.com/apis/api/youtube.googleapis.com/overview
+            string _youtubeDataApiKey = "AIzaSyCUV6j6vCUTD9W2aiTOV-6XkV0Yl8tjFiA";
+            services.AddSingleton<YouTubeDataService>(x => new YouTubeDataService(_youtubeDataApiKey));
+
             // Note: gRPC in Azure App Service is not supported as of Jan 20204, but working with my local gRPC service
-            services.AddSingleton<GrpcService>(x => new GrpcService("https://localhost:7026"));
+            services.AddSingleton<GrpcService>(x => new GrpcService("https://shazamdeskwebapi.azurewebsites.net/songrepo.SongRepoGrpc"));
+            //services.AddSingleton<GrpcService>(x => new GrpcService("https://localhost:7026"));
             // Note: ensure to match your MS SQL Server installation and configuration        
             string connectionString = "Data Source=localhost\\SQLDev2019;Initial Catalog=WpfShazamDB;Integrated Security=True;Encrypt=False;MultipleActiveResultSets=True";
             services.AddSingleton<SqlServerService>(x => new SqlServerService(connectionString));

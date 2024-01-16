@@ -30,7 +30,7 @@ namespace ShazamCore.Helpers
         public static async Task ExecuteOpenUrlCommandAsync(string url, bool lanuchMSEdge = false)
         {
             if (!string.IsNullOrEmpty((string)url))
-            {                               
+            {
                 await Task.Run(() =>
                 {
                     if (lanuchMSEdge)
@@ -56,6 +56,29 @@ namespace ShazamCore.Helpers
                     }
                 });
             }
+        }
+
+        public static bool IsValidUrl(string url) => Uri.IsWellFormedUriString(url, UriKind.Absolute);
+
+        // https://www.youtube.com/watch?v=0fT2amS9KZ4
+        // https://youtu.be/0fT2amS9KZ4
+        // https://youtu.be/0fT2amS9KZ4?t=17         
+        public static bool IsYouTubeVideoUrl(string input)
+        {
+            return input.IsNotBlank() &&
+                    (input.Contains("youtube.com/watch?v=") || input.Contains("youtu.be/"));
+        }
+
+        public static string CleanYouTubeUrl(string youTubeVideoUrl)
+        {
+            // Remove & and the rest (could be &t=24, &list=..., etc.)
+            // https://www.youtube.com/watch?v=xQIDnNHC1rfPXLh&index=1
+            int index = youTubeVideoUrl.IndexOf("&");
+            if (index > 0)
+            {
+                youTubeVideoUrl = youTubeVideoUrl.Remove(index, youTubeVideoUrl.Length - index);
+            }
+            return youTubeVideoUrl;
         }
     }
 }

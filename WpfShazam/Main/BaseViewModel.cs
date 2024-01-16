@@ -35,7 +35,7 @@ public partial class BaseViewModel : ObservableRecipient, ISongInfoPanelMessagin
 
     protected bool _isCommandBusy;
     public bool IsCommandNotBusy => !_isCommandBusy;
-    public string ViaWebApiOrGrpInfo => AppSettings.IsGrpcService ? "via gRPC service" : "via Web API";
+    public string ViaWebApiOrGrpcInfo => AppSettings.IsGrpcService ? "via gRPC service" : "via Web API";
 
     // Handle text red color via DataTrigger with IsErrorStatusMessage (not necessarily an error message)
     protected string ErrorStatusMessage

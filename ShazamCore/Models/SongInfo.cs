@@ -28,6 +28,7 @@ namespace ShazamCore.Models
         public string SongUrl { get; set; } = string.Empty;
 
         public DateTime? ModifiedDateTime { get; set; }
+        public bool IsDeleted { get; set; }
 
         // In WinUI XAML, can't use '.' to bind, hence Summary
         public string Summary => ToString();

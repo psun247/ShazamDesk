@@ -24,7 +24,7 @@
             <StackPanel Orientation="Horizontal">
                 <Button Content="Delete from Azure" Command="{Binding DeleteAzureCommand}" IsEnabled="{Binding IsDeleteAzureEnabled}"
                     ToolTip="Delete selected song info from Azure SQL DB via Web API / gRPC service" Margin="15,0,0,0" />
-                <TextBlock Text="{Binding ViaWebApiOrGrpInfo}" FontSize="16" Margin="10,25,0,0" />
+                <TextBlock Text="{Binding ViaWebApiOrGrpcInfo}" FontSize="16" Margin="10,25,0,0" />
                 <Button Command="{Binding RefreshAzureCommand}" IsEnabled="{Binding IsCommandNotBusy}"
                     ToolTip="Refresh song info list via Web API / gRPC service" Padding="10,5" Margin="20,0,0,0">
                     <ui:SymbolIcon Symbol="Refresh" />

@@ -50,10 +50,12 @@
 
                     <StackPanel Orientation="Horizontal">
                         <Button Content="Add to Azure" ToolTip="Add newly identified song info to Azure SQL DB via Web API / gRPC"                            
-                            Command="{Binding AddAzureCommand}" IsEnabled="{Binding IsAddAzureEnabled}" Margin="15,0,0,0" />
-                        <TextBlock Text="{Binding ViaWebApiOrGrpInfo}" FontSize="16" Margin="10,25,0,0" />
-                        <Button Content="Add to SQL Server" ToolTip="Add newly identified song info to SQL Server DB"                            
-                            Command="{Binding AddSqlServerCommand}" IsEnabled="{Binding IsAddSqlServerEnabled}" Margin="20,0,0,0" />
+                            Command="{Binding AddAzureCommand}" Margin="15,0,0,0" />
+                        <!--Not show ViaWebApiOrGrpcInfo until gRPC is supported-->
+                        <!--<TextBlock Text="{Binding ViaWebApiOrGrpcInfo}" FontSize="16" Margin="10,25,0,0" />-->
+                        <!--Show this button if you have instaleed SQL Server-->
+                        <!--<Button Content="Add to SQL Server" ToolTip="Add newly identified song info to SQL Server DB"                            
+                            Command="{Binding AddSqlServerCommand}" IsEnabled="{Binding IsAddSqlServerEnabled}" Margin="20,0,0,0" />-->
                         <Button ToolTip="Open current video with default external browser"                            
                                 Command="{Binding OpenInExternalBrowserCommand}" Padding="10,5" Margin="15,0,0,0" >
                             <ui:SymbolIcon Symbol="Globe" />
@@ -61,7 +63,7 @@
                     </StackPanel>
                     <!--UpdateSourceTrigger=PropertyChanged needed for KeyBinding to work. No 'Go' button in xaml.-->
                     <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CurrentVideoUrl, UpdateSourceTrigger=PropertyChanged}" 
-                        Height="32" FontSize="14" Margin="10,10,15,10">
+                        Height="32" FontSize="14" Margin="13,10,15,10">
                         <TextBox.InputBindings>
                             <KeyBinding Command="{Binding GoVideoUrlCommand}" Key="Enter" />
                         </TextBox.InputBindings>

@@ -101,6 +101,12 @@ public partial class SongInfoViewModel : ObservableRecipient
     }
 
     [RelayCommand]
+    private void ClearSongInfo()
+    {
+        SongLyrics = string.Empty;
+    }
+
+    [RelayCommand]
     private void ExpandOrCollapseSongInfoPanel()
     {
         SongInfoPanelVisibility = (SongInfoPanelVisibility == Visibility.Visible) ? Visibility.Collapsed : Visibility.Visible;

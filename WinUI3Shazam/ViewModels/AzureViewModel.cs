@@ -60,6 +60,15 @@ public partial class AzureViewModel : BaseViewModel
             StatusMessage = "Loading song list from Azure SQL DB via Web API...please wait";
 
             var list = await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
+            // Fix songInfo.CoverUrl
+            foreach (var songInfo in list)
+            {
+                if (songInfo.CoverUrl?.Contains("info.png", StringComparison.InvariantCultureIgnoreCase) == true)
+                {
+                    // Saved in DB as "Info.png", but convert to the following, similar to WpfShazam project, because they share the same DB
+                    songInfo.CoverUrl = "ms-appx:///Assets/Info.png";
+                }
+            }
             SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
 
             StatusMessage = list.Count == 0 ? "No song found at Azure SQL DB via Web API" : "Song list loaded from Azure SQL DB via Web API";

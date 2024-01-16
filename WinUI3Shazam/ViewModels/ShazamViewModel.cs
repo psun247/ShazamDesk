@@ -189,7 +189,8 @@ public partial class ShazamViewModel : BaseViewModel
                 Description = _lastVideoInfo.Song,
                 CoverUrl = _lastVideoInfo.CoverUrl,
                 Lyrics = SongInfoViewModel.SongLyrics,
-                SongUrl = CurrentVideoUrl
+                SongUrl = CurrentVideoUrl,
+                ModifiedDateTime = DateTime.Now
             };
 
             string error = await _azureService.AddSongInfoAsync(songInfo, AppSettings.IsWebApiViaAuth);
