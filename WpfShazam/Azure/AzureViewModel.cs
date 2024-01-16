@@ -87,19 +87,8 @@ public partial class AzureViewModel : BaseViewModel
             Mouse.OverrideCursor = Cursors.Wait;
 
             StatusMessage = $"Loading song list from Azure SQL DB {_ViaGrpcServiceOrWebAPI}...please wait";
-
-            List<SongInfo> list = AppSettings.IsGrpcService ?
-                                    await _grpcService.GetAllSongInfoListAsync() :
-                                    await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
-            // Fix songInfo.CoverUrl
-            foreach (var songInfo in list)
-            {
-                if (songInfo.CoverUrl?.Contains("info.png", StringComparison.InvariantCultureIgnoreCase) == true)
-                {
-                    // Saved in DB as "Info.png", but convert to the following, similar to WInUI3Shazam project, because they share the same DB
-                    songInfo.CoverUrl = "/WpfShazam;component/Assets/Info.png";
-                }
-            }
+            
+            List<SongInfo> list = await LoadAllSongInfoListAsync();
             SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
 
             StatusMessage = list.Count == 0 ? $"No song found at Azure SQL DB {_ViaGrpcServiceOrWebAPI}" :
@@ -125,6 +114,23 @@ public partial class AzureViewModel : BaseViewModel
         }
     }
 
+    private async Task<List<SongInfo>> LoadAllSongInfoListAsync()
+    {
+        List<SongInfo> list = AppSettings.IsGrpcService ?
+                                    await _grpcService.GetAllSongInfoListAsync() :
+                                    await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
+        // Fix songInfo.CoverUrl
+        foreach (var songInfo in list)
+        {
+            if (songInfo.CoverUrl?.Contains("info.png", StringComparison.InvariantCultureIgnoreCase) == true)
+            {
+                // Saved in DB as "Info.png", but convert to the following, similar to WInUI3Shazam project, because they share the same DB
+                songInfo.CoverUrl = "/WpfShazam;component/Assets/Info.png";
+            }
+        }
+        return list;
+    }
+
     [RelayCommand]
     private async Task DeleteAzure()
     {
@@ -144,10 +150,8 @@ public partial class AzureViewModel : BaseViewModel
                                 await _grpcService.DeleteSongInfoAsync(SelectedSongInfoFromAzure!.Id) :
                                 await _azureService.DeleteSongInfoAsync(SelectedSongInfoFromAzure!.Id, AppSettings.IsWebApiViaAuth);
             if (error.IsBlank())
-            {
-                List<SongInfo> list = AppSettings.IsGrpcService ?
-                                        await _grpcService.GetAllSongInfoListAsync() :
-                                        await _azureService.GetAllSongInfoListAsync(AppSettings.IsWebApiViaAuth);
+            {                
+                List<SongInfo> list = await LoadAllSongInfoListAsync();
                 // Note: the following will cause SelectedSongInfoFromAzure in XAML clear binding (i.e. set SelectedSongInfoFromAzure to null),
                 //          hence triggering OnSelectedSongInfoFromAzureChanged()'s 'value == null' logic 
                 SongInfoListFromAzure = new ObservableCollection<SongInfo>(list);
