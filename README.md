@@ -7,7 +7,7 @@ WPF version of ChatGPT using OpenAI API key with GPT-3.5 model turbo. This is in
 ![image](https://github.com/psun247/ShazamDesk/assets/31531761/612c1854-f299-4321-850e-7b78513f3803)
 
 # Shazam tab
-Listen to a device (mic or speaker) selected from the dropdown list.  When identified, a list of songs will be displayed, plus lyrics (if found) will be shown on the right side of the screen.  Usually, you could select a song from the list to save it with the lyrics in Azure SQL DB (via Web API or gRPC service) or SQL Server DB.
+Listen to a device (mic or speaker) selected from the dropdown list.  When identified, a list of songs will be displayed, plus lyrics (if found) will be shown on the right side of the screen.  Usually, you could select a song from the list to save it with the lyrics in Azure SQL DB (via Web API or gRPC service) or SQL Server DB. Note that you can now add a song/video to Azure SQL DB without going through the Shazam listening.
 
 ![image](https://github.com/psun247/ShazamDesk/assets/31531761/3baece02-17a9-44ab-a35f-79e8205333c2)
 
@@ -32,8 +32,8 @@ Build WpfShazam.sln with Visual Studio Professional 2022 (64-bit) or Community v
 
 # Run
 To run WpfShazam app without compiling it,
-1. Click WpfShazam_v1.0 under Releases on the right side of this page
-2. Download WpfShazam_v1.0_net6.0-windows.zip
+1. Click WpfShazam_v1.2 under Releases on the right side of this page
+2. Download WpfShazam_v1.2_net6.0-windows.zip
 3. Unzip the file and run WpfShazam.exe
 
 # Usage
