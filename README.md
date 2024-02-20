@@ -8,8 +8,6 @@ https://github.com/psun247/CSharpWpfChatGPT
 # WPF Shazam
 WPF Shazam identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via Web API / gRPC service or in SQL Server DB. 
 
-![image](https://github.com/psun247/ShazamDesk/assets/31531761/612c1854-f299-4321-850e-7b78513f3803)
-
 # Shazam tab
 Listen to a device (mic or speaker) selected from the dropdown list.  When identified, a list of songs will be displayed, plus lyrics (if found) will be shown on the right side of the screen.  Usually, you could select a song from the list to save it with the lyrics in Azure SQL DB (via Web API or gRPC service) or SQL Server DB. Note that you can now add a song/video to Azure SQL DB without going through the Shazam listening.
 
