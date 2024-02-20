@@ -1,8 +1,12 @@
-# ChatGPT + Shazam
-WPF ChatGPT mimics ChatGPT web UI. WPF Shazam identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via Web API / gRPC service or in SQL Server DB. 
+# Project note
+I removed ChatGPT API feature from this repo.  For that, please read my article: 
+https://www.codeproject.com/Tips/5377103/ChatGPT-API-in-Csharp-WPF-XAML-MVVM
 
-# ChatGPT tab
-WPF version of ChatGPT using OpenAI API key with GPT-3.5 model turbo. This is independent of the rest of the app.
+GitHub source code: 
+https://github.com/psun247/CSharpWpfChatGPT
+
+# WPF Shazam
+WPF Shazam identifies songs like the popular mobile app Shazam and saves song info in Azure SQL DB via Web API / gRPC service or in SQL Server DB. 
 
 ![image](https://github.com/psun247/ShazamDesk/assets/31531761/612c1854-f299-4321-850e-7b78513f3803)
 
@@ -21,7 +25,7 @@ You can delete a selected item in the list via Web API or gRPC service.
 ![image](https://github.com/psun247/ShazamDesk/assets/31531761/b1708d2a-a5a8-467d-9710-294ef766ca0f)
 
 # SQL Server tab
-Similar to Azure tab, but data store is a local SQL Server DB.  Note: SQL Server needs to be installed and configured properly, and connection string change in SqlServerContext.cs will be required.
+Similar to Azure / gRPC tab, but data store is a local SQL Server DB.  Note: SQL Server needs to be installed and configured properly, and connection string change in SqlServerContext.cs will be required.
 
 Since SQL Server is assumed not installed, default mode on this tab is Demo that shows a predefined read-only list.
 
@@ -60,10 +64,6 @@ https://www.nuget.org/packages/ModernWpfUI/
 NAudio
 
 https://www.nuget.org/packages/NAudio
-
-Whetstone.ChatGPT
-
-https://www.nuget.org/packages/Whetstone.ChatGPT
  
 RestoreWindowPlace
 

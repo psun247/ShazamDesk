@@ -27,10 +27,7 @@ public partial class MainWindow : Window
             var localsettingsService = App.GetService<ILocalSettingsService>();
             switch (localsettingsService.AppSettings.SelectedTabName)
             {
-                // Because of TabControl's SelectedIndex="-1", all '.IsSelected = true' now works properly.
-                case AppSettings.ChatGPTTabName:
-                    ChatGPTTabItem.IsSelected = true;
-                    break;
+                // Because of TabControl's SelectedIndex="-1", all '.IsSelected = true' now works properly.                
                 case AppSettings.ShazamTabName:                    
                     ShazamTabItem.IsSelected = true;
                     break;

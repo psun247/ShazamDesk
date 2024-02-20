@@ -10,8 +10,7 @@ public partial class SettingsUserControl : UserControl
     {
         InitializeComponent();
 
-        Loaded += SettingsUserControl_Loaded;
-        ApiKeyUrlHyperlink.RequestNavigate += RequestNavigate;
+        Loaded += SettingsUserControl_Loaded;        
         SelectedShazamTabSongUrlHyperlink.RequestNavigate += RequestNavigate;
         SelectedAzureTabSongUrlHyperlink.RequestNavigate += RequestNavigate;
         SelectedSqlServerTabSongUrlHyperlink.RequestNavigate += RequestNavigate;

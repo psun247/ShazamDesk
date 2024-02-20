@@ -28,7 +28,7 @@ Listen to a device (mic or speaker) selected from the dropdown list.  When ident
 
 You can open currently selected YouTube video externally with default web browser.
 
-==Azure tab
+==Azure / gRPC tab
 Saved song info list in Azure SQL DB (via Web API or gRPC service) will be displayed in the left panel. When an item is selected in the list, the matching YouTube video will display on the right side.
 
 You can delete a selected item in the list via Web API or gRPC service.

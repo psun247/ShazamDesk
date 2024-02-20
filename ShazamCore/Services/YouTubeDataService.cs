@@ -9,12 +9,10 @@ namespace ShazamCore.Services
         private const string _VideoIDPlaceHolder = "VideoIDPlaceHolder";
         private readonly string _VideoSnippetUrl;
 
-        private string _youtubeDataApiKey;
         private HttpClient _httpClient;
 
         public YouTubeDataService(string youtubeDataApiKey)
-        {
-            _youtubeDataApiKey = youtubeDataApiKey;
+        {           
             _VideoSnippetUrl = $"https://www.googleapis.com/youtube/v3/videos?part=id%2C+snippet&id={_VideoIDPlaceHolder}&key={youtubeDataApiKey}";
             _httpClient = new HttpClient();
         }

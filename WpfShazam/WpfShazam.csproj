@@ -13,7 +13,6 @@
     <None Remove="Assets\about.png" />
     <None Remove="Assets\AboutTabContent.txt" />
     <None Remove="Assets\azure.png" />
-    <None Remove="Assets\chatgpt.png" />
     <None Remove="Assets\database.png" />
     <None Remove="Assets\Info.png" />
     <None Remove="Assets\shazam.png" />
@@ -38,8 +37,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />    
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1587.40" />
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />    
-    <PackageReference Include="RestoreWindowPlace" Version="2.1.0" />    
-    <PackageReference Include="Whetstone.ChatGPT" Version="1.7.0" />    
+    <PackageReference Include="RestoreWindowPlace" Version="2.1.0" />        
   </ItemGroup>
 
   <ItemGroup>
@@ -49,7 +47,6 @@
   <ItemGroup>
     <Resource Include="Assets\about.png" />
     <Resource Include="Assets\azure.png" />
-    <Resource Include="Assets\chatgpt.png" />
     <Resource Include="Assets\database.png" />
     <Resource Include="Assets\Info.png" />
     <Resource Include="Assets\shazam.png" />
